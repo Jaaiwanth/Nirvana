@@ -51,12 +51,15 @@ export const EmergencyDispatchAnnotation = Annotation.Root({
   }),
 });
 
+import { agentTelemetry } from '../services/agentTelemetry.js';
+
 export type EmergencyDispatchStateType = typeof EmergencyDispatchAnnotation.State;
 
 // ==========================================
 // 1. Triage Node (Text / Multimodal Ingestion)
 // ==========================================
 async function triageNode(state: EmergencyDispatchStateType): Promise<Partial<EmergencyDispatchStateType>> {
+  const t0 = Date.now();
   let triage: IncidentTriage;
 
   if (state.mediaInput) {
@@ -69,11 +72,21 @@ async function triageNode(state: EmergencyDispatchStateType): Promise<Partial<Em
     triage = await incidentExtractor.extract(state.rawReport);
   }
 
+  const durationMs = Date.now() - t0;
+  const summary = `Extracted ${triage.severity} ${triage.incidentType} (${triage.requiredCapabilities.join(', ')})`;
+
+  agentTelemetry.emit({
+    incidentId: state.incidentId,
+    nodeName: 'triageNode',
+    phase: 'COMPLETE',
+    durationMs,
+    summary,
+    details: triage,
+  });
+
   return {
     triage,
-    executionLogs: [
-      `[TriageNode] Extracted ${triage.severity} ${triage.incidentType} (${triage.requiredCapabilities.join(', ')})`,
-    ],
+    executionLogs: [`[TriageNode] ${summary} (${durationMs}ms)`],
   };
 }
 
@@ -81,8 +94,16 @@ async function triageNode(state: EmergencyDispatchStateType): Promise<Partial<Em
 // 2. Spatial Pruning Node (Haversine & H3 Radius)
 // ==========================================
 async function spatialPruningNode(state: EmergencyDispatchStateType): Promise<Partial<EmergencyDispatchStateType>> {
+  const t0 = Date.now();
   const availableTeams = await resourceRepo.getAvailableTeams();
   if (availableTeams.length === 0) {
+    agentTelemetry.emit({
+      incidentId: state.incidentId,
+      nodeName: 'spatialPruningNode',
+      phase: 'ERROR',
+      durationMs: Date.now() - t0,
+      summary: 'Critical fleet exhaustion: Zero emergency units available',
+    });
     throw new Error('Critical fleet exhaustion: Zero emergency rescue units currently available.');
   }
 
@@ -95,11 +116,21 @@ async function spatialPruningNode(state: EmergencyDispatchStateType): Promise<Pa
     6
   );
 
+  const durationMs = Date.now() - t0;
+  const summary = `Screened ${availableTeams.length} fleet units -> Pruned to top ${candidates.length} candidate units`;
+
+  agentTelemetry.emit({
+    incidentId: state.incidentId,
+    nodeName: 'spatialPruningNode',
+    phase: 'COMPLETE',
+    durationMs,
+    summary,
+    details: { availableCount: availableTeams.length, candidateCount: candidates.length },
+  });
+
   return {
     candidates,
-    executionLogs: [
-      `[SpatialPruningNode] Screened ${availableTeams.length} fleet units -> Pruned to top ${candidates.length} candidate units`,
-    ],
+    executionLogs: [`[SpatialPruningNode] ${summary} (${durationMs}ms)`],
   };
 }
 
@@ -107,6 +138,7 @@ async function spatialPruningNode(state: EmergencyDispatchStateType): Promise<Pa
 // 3. OSRM Road Routing Node
 // ==========================================
 async function osrmRoutingNode(state: EmergencyDispatchStateType): Promise<Partial<EmergencyDispatchStateType>> {
+  const t0 = Date.now();
   const enrichedCandidates: ScoredCandidate[] = await Promise.all(
     state.candidates.map(async (candidate) => {
       const route = await osrmClient.getDrivingRoute(
@@ -122,11 +154,21 @@ async function osrmRoutingNode(state: EmergencyDispatchStateType): Promise<Parti
     })
   );
 
+  const durationMs = Date.now() - t0;
+  const summary = `Calculated real road graph routes & polylines for ${enrichedCandidates.length} units`;
+
+  agentTelemetry.emit({
+    incidentId: state.incidentId,
+    nodeName: 'osrmRoutingNode',
+    phase: 'COMPLETE',
+    durationMs,
+    summary,
+    details: { enrichedCount: enrichedCandidates.length },
+  });
+
   return {
     enrichedCandidates,
-    executionLogs: [
-      `[OsrmRoutingNode] Calculated real road graph routes and polylines for ${enrichedCandidates.length} units`,
-    ],
+    executionLogs: [`[OsrmRoutingNode] ${summary} (${durationMs}ms)`],
   };
 }
 
@@ -134,10 +176,22 @@ async function osrmRoutingNode(state: EmergencyDispatchStateType): Promise<Parti
 // 4. Decision Node (Multi-Criteria Scoring)
 // ==========================================
 async function decisionNode(state: EmergencyDispatchStateType): Promise<Partial<EmergencyDispatchStateType>> {
+  const t0 = Date.now();
   if (!state.triage) throw new Error('Cannot evaluate decision without triage state');
 
   const dispatchPlan = await decisionAgent.evaluate(state.triage, state.enrichedCandidates);
   const isExhaustionSubstitute = !!dispatchPlan.isExhaustionSubstitute;
+  const durationMs = Date.now() - t0;
+  const summary = `Selected Primary: ${dispatchPlan.primaryTeam.callsign} (${dispatchPlan.primaryTeam.vehicleType}, ETA: ${dispatchPlan.primaryTeam.etaMinutes}m)`;
+
+  agentTelemetry.emit({
+    incidentId: state.incidentId,
+    nodeName: 'decisionNode',
+    phase: 'COMPLETE',
+    durationMs,
+    summary,
+    details: dispatchPlan,
+  });
 
   return {
     dispatchPlan,
@@ -146,9 +200,7 @@ async function decisionNode(state: EmergencyDispatchStateType): Promise<Partial<
       dispatchPlan.primaryTeam.id,
       ...dispatchPlan.secondarySupport.map((s) => s.id),
     ],
-    executionLogs: [
-      `[DecisionNode] Selected Primary: ${dispatchPlan.primaryTeam.callsign} (${dispatchPlan.primaryTeam.vehicleType}, ETA: ${dispatchPlan.primaryTeam.etaMinutes}m)`,
-    ],
+    executionLogs: [`[DecisionNode] ${summary} (${durationMs}ms)`],
   };
 }
 
@@ -156,10 +208,19 @@ async function decisionNode(state: EmergencyDispatchStateType): Promise<Partial<
 // 5. Replanning Node (Contingency Branch)
 // ==========================================
 async function replanningNode(state: EmergencyDispatchStateType): Promise<Partial<EmergencyDispatchStateType>> {
+  const summary = `⚠️ FLEET EXHAUSTION PROTOCOL: All specialized units deployed. Dispatched emergency cross-trained substitute (${state.dispatchPlan?.primaryTeam.callsign}).`;
+
+  agentTelemetry.emit({
+    incidentId: state.incidentId,
+    nodeName: 'replanningNode',
+    phase: 'BRANCH',
+    durationMs: 0,
+    summary,
+    details: { substitute: state.dispatchPlan?.primaryTeam },
+  });
+
   return {
-    executionLogs: [
-      `[ReplanningNode] ⚠️ FLEET EXHAUSTION PROTOCOL: All specialized units deployed. Dispatched emergency cross-trained substitute (${state.dispatchPlan?.primaryTeam.callsign}).`,
-    ],
+    executionLogs: [`[ReplanningNode] ${summary}`],
   };
 }
 
@@ -219,11 +280,19 @@ async function commitAndTelemetryNode(state: EmergencyDispatchStateType): Promis
     graphLogs: state.executionLogs,
   });
 
+  const summary = `Incident ${incidentId} committed. Dispatched: ${dispatchPlan.primaryTeam.callsign} + ${dispatchPlan.secondarySupport.length} support units. Live telemetry active.`;
+  agentTelemetry.emit({
+    incidentId,
+    nodeName: 'commitAndTelemetryNode',
+    phase: 'COMPLETE',
+    durationMs: 0,
+    summary,
+    details: { assignedTeamIds, incidentId },
+  });
+
   return {
     status: 'DISPATCHED',
-    executionLogs: [
-      `[CommitAndTelemetryNode] Incident ${incidentId} registered. Live telemetry streaming on /api/events.`,
-    ],
+    executionLogs: [`[CommitAndTelemetryNode] ${summary}`],
   };
 }
 

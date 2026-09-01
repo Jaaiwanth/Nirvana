@@ -3,7 +3,7 @@
 > **Notice:** The canonical version of this testing guide is maintained in **[`docs/API_TESTING_GUIDE.md`](docs/API_TESTING_GUIDE.md)**.
 
 Please refer to **[docs/API_TESTING_GUIDE.md](docs/API_TESTING_GUIDE.md)** for:
-- ⚡ **1-Command Automated Verification** (`npm test`, `npm run test:scenarios`, and `npm run test:benchmark`)
+- ⚡ **1-Command Automated Verification** (`npm test`, `npm run test:scenarios`, `npm run test:benchmark`, and `npm run test:telemetry`)
 - 🚀 **Server Startup Instructions** (`npm run dev`)
 - 📋 **Complete cURL Reference for All Endpoints**
 - 📸 **Multimodal Audio & Vision Intake** (`POST /api/incidents/media`)

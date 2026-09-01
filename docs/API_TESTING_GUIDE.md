@@ -53,6 +53,18 @@ npm run test:benchmark
 
 ---
 
+### D. Real-Time LangGraph Agent Reasoning Telemetry Tracer
+```bash
+cd backend
+npm run test:telemetry
+```
+**What it tests:**
+- Subscribes to the live `/api/events` Server-Sent Events stream.
+- Injects an emergency dispatch into the compiled LangGraph StateGraph.
+- Streams live telemetry events for each node (`triageNode`, `spatialPruningNode`, `osrmRoutingNode`, `decisionNode`, `commitAndTelemetryNode`) with microsecond execution durations and reasoning traces.
+
+---
+
 ## 🚀 2. Starting the Backend Server
 
 ```bash
@@ -358,14 +370,27 @@ es.addEventListener('team:dispatched', (e) => {
   console.log('🚒 TEAM DISPATCHED:', JSON.parse(e.data));
 });
 
+es.addEventListener('agent:telemetry', (e) => {
+  const data = JSON.parse(e.data);
+  console.log(`🧠 AGENT TELEMETRY [${data.nodeName}] (${data.durationMs}ms): ${data.summary}`);
+});
+
 es.addEventListener('telemetry:update', (e) => {
   const data = JSON.parse(e.data);
-  console.log(`🛰️ TELEMETRY: Unit ${data.teamId} at (${data.currentCoordinates.lat}, ${data.currentCoordinates.lng}) - ETA: ${data.etaMinutes}m (${data.progressPercentage}%)`);
+  console.log(`🛰️ VEHICLE TELEMETRY: Unit ${data.teamId} at (${data.currentCoordinates.lat}, ${data.currentCoordinates.lng}) - ETA: ${data.etaMinutes}m (${data.progressPercentage}%)`);
 });
 
 es.addEventListener('incident:resolved', (e) => {
   console.log('✅ INCIDENT RESOLVED:', JSON.parse(e.data));
 });
+```
+
+#### `GET /api/events/telemetry`
+Fetches historical agent reasoning telemetry records for an incident or entire session.
+
+**cURL:**
+```bash
+curl -X GET http://localhost:5000/api/events/telemetry
 ```
 
 ---

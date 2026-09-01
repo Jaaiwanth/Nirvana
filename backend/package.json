@@ -11,7 +11,8 @@
     "lint": "tsc --noEmit",
     "test": "tsx tests/verifyPipeline.ts",
     "test:scenarios": "tsx tests/runScenarios.ts",
-    "test:benchmark": "tsx tests/benchmarks/latencyBenchmark.ts"
+    "test:benchmark": "tsx tests/benchmarks/latencyBenchmark.ts",
+    "test:telemetry": "tsx tests/runAgentTelemetry.ts"
   },
   "keywords": [
     "emergency-response",
