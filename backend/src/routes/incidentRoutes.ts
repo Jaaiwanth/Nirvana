@@ -3,7 +3,7 @@ import { listIncidents, getIncidentById, createAndDispatchIncident, createFromMe
 
 export const incidentRouter = Router();
 
+incidentRouter.post('/media', createFromMediaIncident); // Must be before /:id param routes
 incidentRouter.get('/', listIncidents);
 incidentRouter.get('/:id', getIncidentById);
 incidentRouter.post('/', createAndDispatchIncident);
-incidentRouter.post('/media', createFromMediaIncident);
