@@ -198,7 +198,15 @@ curl -X POST http://localhost:5000/api/incidents \
     "priority": "CRITICAL",
     "isFallback": false,
     "isExhaustionSubstitute": false
-  }
+  },
+  "executionLogs": [
+    "[GraphEngine] Initialized LangGraph StateGraph workflow for incident inc_mtiy...12",
+    "[TriageNode] Extracted CRITICAL structural_collapse (heavy_rescue, extrication_tools, structural_shoring, als_medical)",
+    "[SpatialPruningNode] Screened 20 fleet units -> Pruned to top 5 candidate units",
+    "[OsrmRoutingNode] Calculated real road graph routes and polylines for 5 units",
+    "[DecisionNode] Selected Primary: Task Force Alpha (Heavy Rescue Tender, ETA: 3.2m)",
+    "[CommitAndTelemetryNode] Incident registered. Live telemetry streaming on /api/events."
+  ]
 }
 ```
 

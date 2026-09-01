@@ -232,7 +232,8 @@ flowchart TD
 | **Styling** | Tailwind CSS, Lucide Icons | Glassmorphic high-contrast dark theme for 24/7 EOC operations |
 | **Maps** | Leaflet, React-Leaflet, OpenStreetMap | 100% free, zero API keys required, lightweight polyline rendering |
 | **Backend** | Node.js, Express, TypeScript, Zod | Type-safe REST APIs and unified shared models |
-| **AI (Primary)** | Groq (Llama-3.3-70b-versatile) | World's fastest inference (~300 t/s) for sub-400ms dispatch |
+| **AI Orchestration** | LangGraph (`@langchain/langgraph`) | StateGraph workflow with conditional edges and checkpointing |
+| **AI (Primary)** | Groq (Llama-3.3-70b / GPT-OSS) | World's fastest inference (~300 t/s) for sub-400ms dispatch |
 | **AI (Multimodal)** | Google Gemini (gemini-3-flash-preview) | Native visual damage and audio 911 call analysis |
 | **Spatial Routing** | OSRM + Uber H3 + Haversine | Real-world road graph navigation with $O(1)$ fast spatial filtering |
 | **Database** | In-Memory (Dev) / PostGIS (Prod) | Zero friction for hackathon; enterprise-grade GIS blueprint ready |

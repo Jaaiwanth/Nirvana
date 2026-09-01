@@ -159,9 +159,44 @@ export interface IAIProvider {
 }
 ```
 
-- **Default Mode (`AI_PROVIDER=groq`):** Uses Groq's `llama-3.3-70b-versatile` with JSON schema enforcement. Total extraction latency $\approx 350\text{ms}$.
+- **Default Mode (`AI_PROVIDER=groq`):** Uses Groq's `llama-3.3-70b-versatile` / `openai/gpt-oss-120b` with JSON schema enforcement. Total extraction latency $\approx 350\text{ms}$.
 - **Multimodal Mode (`AI_PROVIDER=gemini`):** Uses Gemini (`gemini-3-flash-preview`) for audio 911 calls or emergency scene photo uploads.
 - **Failover:** If the active provider returns HTTP 429 or 5xx, the system transparently falls back to the alternate provider, and if both fail, triggers the **Rule-Based Deterministic Engine**.
+
+### 4.3 Multi-Agent StateGraph Workflow (LangGraph)
+The end-to-end emergency coordinator is formally structured as a compiled **LangGraph `StateGraph`** (`@langchain/langgraph`):
+
+```mermaid
+graph TD
+    START([START: Emergency Intake]) --> TriageNode[1. Triage Node\nGroq LPU / Gemini Vision]
+    TriageNode --> SpatialNode[2. Spatial Pruning Node\nHaversine / H3 Radius]
+    SpatialNode --> OSRMNode[3. OSRM Routing Node\nRoad Graph & Polylines]
+    OSRMNode --> DecisionNode[4. Decision Node\nMulti-Criteria Scoring]
+    
+    DecisionNode --> CondExhaustion{Fleet Exhausted?}
+    CondExhaustion -- Yes: isExhaustionSubstitute --> ReplanningNode[5. Replanning Node\nContingency Cross-Trained Unit]
+    CondExhaustion -- No --> CommitNode[6. Commit & Telemetry Node\nState Update & SSE Broadcast]
+    ReplanningNode --> CommitNode
+    CommitNode --> ENDNode([END: Incident Dispatched])
+```
+
+#### Graph State Annotation (`EmergencyDispatchAnnotation`)
+```typescript
+export const EmergencyDispatchAnnotation = Annotation.Root({
+  incidentId: Annotation<string>(),
+  rawReport: Annotation<string>(),
+  coordinates: Annotation<Coordinates>(),
+  mediaInput: Annotation<EmergencyMediaInput | undefined>(),
+  triage: Annotation<IncidentTriage | undefined>(),
+  candidates: Annotation<ScoredCandidate[]>({ reducer: (_, next) => next, default: () => [] }),
+  enrichedCandidates: Annotation<ScoredCandidate[]>({ reducer: (_, next) => next, default: () => [] }),
+  dispatchPlan: Annotation<DispatchPlan | undefined>(),
+  assignedTeamIds: Annotation<string[]>({ reducer: (_, next) => next, default: () => [] }),
+  isExhaustionSubstitute: Annotation<boolean>({ reducer: (_, next) => next, default: () => false }),
+  executionLogs: Annotation<string[]>({ reducer: (curr, next) => curr.concat(next), default: () => [] }),
+  status: Annotation<'IN_PROGRESS' | 'DISPATCHED' | 'FAILED'>({ reducer: (_, next) => next, default: () => 'IN_PROGRESS' }),
+});
+```
 
 ---
 
