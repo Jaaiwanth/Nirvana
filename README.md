@@ -13,6 +13,7 @@
 
 - **[Technical Implementation Specification](docs/IMPLEMENTATION.md)** — Deep-dive geospatial study (PostGIS vs. H3 vs. Haversine), AI provider benchmarks (Groq vs. Gemini), database models, and phase-wise roadmap.
 - **[Contributor Guide & Role Allocation](docs/CONTRIBUTION.md)** — Ownership domains, API interface contracts, local setup, and git workflows for **3 contributors** (Frontend, Backend, AI/Agents).
+- **[Executive Pitch & Use Case Architecture](docs/PITCH.md)** — Hackathon pitch deck, problem statement, actors, system boundary diagram, and presentation script.
 - **[Backend API Testing Guide](docs/API_TESTING_GUIDE.md)** — Step-by-step endpoint reference, cURL commands, preset scenario triggers, and real-time SSE stream testing.
 - **[Autonomous Progress Tracker](docs/PROGRESS_TRACKER.md)** — Dual-mode task tracking dashboard designed for developers and autonomous AI agents (Antigravity, Claude, Cursor) to track real-time progress.
 
