@@ -54,7 +54,17 @@ export const TrackingPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['resources'] });
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
     },
-    onIncidentResolved: () => {
+    onTelemetryUpdate: (data) => {
+      if (data.status === 'ON_SCENE') {
+        queryClient.setQueryData<Incident[]>(['incidents'], (old = []) =>
+          old.map((inc) => (inc.id === data.incidentId ? { ...inc, status: 'ON_SCENE' } : inc))
+        );
+      }
+    },
+    onIncidentResolved: (resolvedIncidentId) => {
+      queryClient.setQueryData<Incident[]>(['incidents'], (old = []) =>
+        old.map((inc) => (inc.id === resolvedIncidentId ? { ...inc, status: 'RESOLVED' } : inc))
+      );
       queryClient.invalidateQueries({ queryKey: ['resources'] });
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
     },

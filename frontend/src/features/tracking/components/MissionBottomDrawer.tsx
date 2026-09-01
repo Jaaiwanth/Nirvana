@@ -40,9 +40,32 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const primaryTeam = selectedIncident?.dispatchPlan?.primaryTeam;
-  const progressPct = activeTelemetry?.progressPercentage ?? 0;
-  const etaMin = activeTelemetry?.etaMinutes ?? primaryTeam?.etaMinutes ?? 0;
-  const remainingDist = activeTelemetry?.remainingDistanceKm ?? primaryTeam?.distanceKm ?? 0;
+  const isResolved = selectedIncident?.status === 'RESOLVED';
+  const isOnScene = selectedIncident?.status === 'ON_SCENE' || activeTelemetry?.status === 'ON_SCENE';
+
+  const progressPct = isResolved || isOnScene
+    ? 100
+    : (activeTelemetry?.progressPercentage ?? 0);
+
+  const etaMin = isResolved || isOnScene
+    ? 0.0
+    : (activeTelemetry?.etaMinutes ?? primaryTeam?.etaMinutes ?? 0.0);
+
+  const remainingDist = isResolved || isOnScene
+    ? 0.0
+    : (activeTelemetry?.remainingDistanceKm ?? primaryTeam?.distanceKm ?? 0.0);
+
+  const statusVariant = isResolved || isOnScene
+    ? 'success'
+    : selectedIncident?.status === 'DISPATCHED'
+    ? 'warning'
+    : 'info';
+
+  const statusLabel = isResolved
+    ? 'RESOLVED'
+    : isOnScene
+    ? 'ON SCENE'
+    : selectedIncident?.status || 'STANDBY';
 
   const drawerTabs = [
     { id: 'overview', label: 'Overview' },
@@ -118,9 +141,15 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
             <div className="h-full flex flex-col md:flex-row items-center justify-between gap-6">
               {/* Left: Incident Identity & Vehicle Details */}
               <div className="flex items-center gap-4 w-full md:w-auto">
-                <div className="h-16 w-20 rounded-lg bg-zinc-900/80 border border-zinc-800 flex flex-col items-center justify-center text-sky-400 shrink-0">
+                <div
+                  className={`h-16 w-20 rounded-lg border flex flex-col items-center justify-center shrink-0 ${
+                    isResolved || isOnScene
+                      ? 'bg-emerald-950/40 border-emerald-800 text-emerald-400'
+                      : 'bg-zinc-900/80 border-zinc-800 text-sky-400'
+                  }`}
+                >
                   <Truck className="h-8 w-8" />
-                  <span className="text-[9px] font-mono font-bold text-zinc-400 mt-1 uppercase">
+                  <span className="text-[9px] font-mono font-bold mt-1 uppercase">
                     {primaryTeam?.vehicleType.split(' ')[0] || 'RESCUE'}
                   </span>
                 </div>
@@ -133,12 +162,8 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
                         : 'SELECT INCIDENT'}
                     </h3>
                     {selectedIncident && (
-                      <StatusPill
-                        variant={
-                          selectedIncident.status === 'ON_SCENE' ? 'success' : 'warning'
-                        }
-                      >
-                        {selectedIncident.status}
+                      <StatusPill variant={statusVariant}>
+                        {statusLabel}
                       </StatusPill>
                     )}
                   </div>
@@ -148,6 +173,8 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
                       <>
                         <span className="text-zinc-200 font-semibold">{primaryTeam.callsign}</span> · {primaryTeam.vehicleType}
                       </>
+                    ) : selectedIncident?.assignedTeamIds?.[0] ? (
+                      `Unit ${selectedIncident.assignedTeamIds[0]} Dispatched`
                     ) : (
                       'Standby: Waiting for incident selection'
                     )}
@@ -168,26 +195,34 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
                   <span className="text-zinc-300 font-semibold">
                     {primaryTeam ? 'DISPATCH STATION' : 'ORIGIN'}
                   </span>
-                  <span className="text-sky-400 font-bold">
-                    ON ROUTE: {progressPct}%
+                  <span className={isResolved || isOnScene ? 'text-emerald-400 font-bold' : 'text-sky-400 font-bold'}>
+                    {isResolved ? 'MISSION RESOLVED: 100%' : isOnScene ? 'ON SCENE: 100%' : `ON ROUTE: ${progressPct}%`}
                   </span>
                   <span className="text-zinc-300 font-semibold">
-                    EMERGENCY SCENE
+                    {isResolved ? 'SCENE SECURED' : 'EMERGENCY SCENE'}
                   </span>
                 </div>
 
                 {/* Progress Track */}
                 <div className="relative w-full h-2 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-sky-500 to-emerald-400 transition-all duration-300 rounded-full"
+                    className={`h-full transition-all duration-300 rounded-full ${
+                      isResolved || isOnScene
+                        ? 'bg-emerald-500'
+                        : 'bg-gradient-to-r from-sky-500 to-emerald-400'
+                    }`}
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-1.5">
                   <span>DEP: 0.00 km</span>
-                  <span className="text-zinc-400">
-                    {progressPct >= 100 ? 'UNIT ON SCENE' : `APPROX ${etaMin.toFixed(1)} MIN REMAINING`}
+                  <span className={isResolved || isOnScene ? 'text-emerald-400 font-bold' : 'text-zinc-400'}>
+                    {isResolved
+                      ? 'MISSION ACCOMPLISHED · TASK AUTO-CLOSED'
+                      : isOnScene
+                      ? 'UNIT ARRIVED ON SCENE · OPERATIONS ACTIVE'
+                      : `APPROX ${etaMin.toFixed(1)} MIN REMAINING`}
                   </span>
                   <span>ARR: {remainingDist.toFixed(1)} km</span>
                 </div>
@@ -197,11 +232,11 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
               <div className="grid grid-cols-3 gap-3 shrink-0 w-full md:w-auto">
                 <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 flex flex-col items-center justify-center min-w-24">
                   <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 mb-1">
-                    <Clock className="h-3 w-3 text-sky-400" />
+                    <Clock className={`h-3 w-3 ${isResolved || isOnScene ? 'text-emerald-400' : 'text-sky-400'}`} />
                     <span>ESTIMATE</span>
                   </div>
-                  <span className="text-base font-bold font-mono text-zinc-100">
-                    {etaMin.toFixed(1)}m
+                  <span className={`text-base font-bold font-mono ${isResolved || isOnScene ? 'text-emerald-400' : 'text-zinc-100'}`}>
+                    {isResolved ? 'CLOSED' : `${etaMin.toFixed(1)}m`}
                   </span>
                 </div>
 

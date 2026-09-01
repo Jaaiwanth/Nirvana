@@ -47,6 +47,7 @@ export interface Incident {
   status: 'REPORTED' | 'TRIAGED' | 'DISPATCHED' | 'ON_SCENE' | 'RESOLVED';
   createdAt: string;
   assignedTeamIds: string[];
+  dispatchPlan?: DispatchPlan;
 }
 
 export interface ScoredCandidate {

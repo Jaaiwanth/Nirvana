@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Flame,
   HeartPulse,
@@ -20,16 +20,25 @@ import { TrackingSidebar } from './TrackingSidebar';
 import { StatusPill } from '../../../components/ui/status-pill';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
+import { useLiveTelemetry } from '../hooks/useLiveTelemetry';
 import type { EmergencyTeam } from '../../../types/api';
 
 export const FleetDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
 
   const { data: teams = [], isLoading } = useQuery<EmergencyTeam[]>({
     queryKey: ['resources'],
     queryFn: trackingApi.getResources,
+  });
+
+  // Keep fleet status synchronized with real-time telemetry events
+  useLiveTelemetry({
+    onTeamDispatched: () => queryClient.invalidateQueries({ queryKey: ['resources'] }),
+    onIncidentResolved: () => queryClient.invalidateQueries({ queryKey: ['resources'] }),
+    onTelemetryUpdate: () => queryClient.invalidateQueries({ queryKey: ['resources'] }),
   });
 
   // Get specific meaningful icon and badge color per capability / vehicle type
@@ -93,7 +102,9 @@ export const FleetDashboard: React.FC = () => {
     if (!matchesSearch) return false;
     if (filterCategory === 'ALL') return true;
     if (filterCategory === 'AVAILABLE') return t.status === 'AVAILABLE';
-    if (filterCategory === 'DISPATCHED') return t.status === 'DISPATCHED';
+    if (filterCategory === 'DISPATCHED') {
+      return t.status === 'DISPATCHED' || t.status === 'EN_ROUTE' || t.status === 'ON_SCENE';
+    }
     if (filterCategory === 'FIRE') return t.capabilities.some((c) => c.includes('fire') || c.includes('pump'));
     if (filterCategory === 'MEDICAL') return t.capabilities.some((c) => c.includes('medical') || c.includes('als'));
     if (filterCategory === 'HAZMAT') return t.capabilities.some((c) => c.includes('hazmat') || c.includes('chemical'));
@@ -101,7 +112,9 @@ export const FleetDashboard: React.FC = () => {
   });
 
   const availableCount = teams.filter((t) => t.status === 'AVAILABLE').length;
-  const dispatchedCount = teams.filter((t) => t.status === 'DISPATCHED').length;
+  const dispatchedCount = teams.filter(
+    (t) => t.status === 'DISPATCHED' || t.status === 'EN_ROUTE' || t.status === 'ON_SCENE'
+  ).length;
 
   return (
     <div className="flex h-screen w-full bg-[#090a0f] text-zinc-100 overflow-hidden select-none">

@@ -34,9 +34,10 @@ export function estimateEmergencyEtaMinutes(
   speedFactor: number = 1.0,
   trafficMultiplier: number = 1.25
 ): number {
-  const BASE_CITY_SPEED_KMH = 40.0;
+  if (distanceKm <= 0.05) return 0.0;
+  const BASE_CITY_SPEED_KMH = 45.0;
   const effectiveSpeed = (BASE_CITY_SPEED_KMH * speedFactor) / trafficMultiplier;
   const timeHours = distanceKm / effectiveSpeed;
   const timeMinutes = timeHours * 60;
-  return parseFloat(Math.max(1.0, timeMinutes).toFixed(1));
+  return parseFloat(Math.max(0.1, timeMinutes).toFixed(1));
 }

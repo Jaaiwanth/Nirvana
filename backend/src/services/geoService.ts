@@ -3,39 +3,44 @@ import { calculateHaversineDistance, estimateEmergencyEtaMinutes } from '../util
 
 export class GeoService {
   /**
-   * Filters and ranks rescue teams within a maximum radius (default 25 km),
+   * Filters and ranks rescue teams within a maximum radius (default 35 km),
    * scoring them by capability match and proximity.
+   * If all units are outside maxRadiusKm, falls back to the nearest units in jurisdiction.
    */
   filterCandidateTeams(
     incidentLocation: Coordinates,
     teams: RescueTeam[],
     requiredCapabilities: string[] = [],
-    maxRadiusKm: number = 25.0,
-    topK: number = 5
+    maxRadiusKm: number = 35.0,
+    topK: number = 6
   ): ScoredCandidate[] {
-    const candidates: ScoredCandidate[] = [];
+    if (!teams || teams.length === 0) {
+      return [];
+    }
 
-    for (const team of teams) {
+    const allScored: ScoredCandidate[] = teams.map((team) => {
       const distanceKm = calculateHaversineDistance(team.currentLocation, incidentLocation);
-
-      if (distanceKm <= maxRadiusKm) {
-        // Count how many required capabilities this team satisfies
-        let capabilityMatchCount = 0;
-        if (requiredCapabilities.length > 0) {
-          capabilityMatchCount = requiredCapabilities.filter((cap) =>
-            team.capabilities.includes(cap)
-          ).length;
-        }
-
-        const estimatedEta = estimateEmergencyEtaMinutes(distanceKm, team.speedFactor);
-
-        candidates.push({
-          team,
-          haversineDistanceKm: distanceKm,
-          etaMinutes: estimatedEta,
-          capabilityMatchCount,
-        });
+      let capabilityMatchCount = 0;
+      if (requiredCapabilities.length > 0) {
+        capabilityMatchCount = requiredCapabilities.filter((cap) =>
+          team.capabilities.includes(cap)
+        ).length;
       }
+      const estimatedEta = estimateEmergencyEtaMinutes(distanceKm, team.speedFactor);
+      return {
+        team,
+        haversineDistanceKm: distanceKm,
+        etaMinutes: estimatedEta,
+        capabilityMatchCount,
+      };
+    });
+
+    // 1. Primary candidate filter: within radius
+    let candidates = allScored.filter((c) => c.haversineDistanceKm <= maxRadiusKm);
+
+    // 2. Fallback: If all available units are outside radius, select the closest units in the city
+    if (candidates.length === 0) {
+      candidates = allScored;
     }
 
     // Sort priority:
