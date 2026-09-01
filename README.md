@@ -13,7 +13,7 @@
 
 - **[Technical Implementation Specification](docs/IMPLEMENTATION.md)** — Deep-dive geospatial study (PostGIS vs. H3 vs. Haversine), AI provider benchmarks (Groq vs. Gemini), database models, and phase-wise roadmap.
 - **[Contributor Guide & Role Allocation](docs/CONTRIBUTION.md)** — Ownership domains, API interface contracts, local setup, and git workflows for **3 contributors** (Frontend, Backend, AI/Agents).
-- **[Backend API Testing Guide](docs/APITESTING_GUIDE.md)** — Step-by-step endpoint reference, cURL commands, preset scenario triggers, and real-time SSE stream testing.
+- **[Backend API Testing Guide](docs/API_TESTING_GUIDE.md)** — Step-by-step endpoint reference, cURL commands, preset scenario triggers, and real-time SSE stream testing.
 - **[Autonomous Progress Tracker](docs/PROGRESS_TRACKER.md)** — Dual-mode task tracking dashboard designed for developers and autonomous AI agents (Antigravity, Claude, Cursor) to track real-time progress.
 
 ---
@@ -233,7 +233,7 @@ flowchart TD
 | **Maps** | Leaflet, React-Leaflet, OpenStreetMap | 100% free, zero API keys required, lightweight polyline rendering |
 | **Backend** | Node.js, Express, TypeScript, Zod | Type-safe REST APIs and unified shared models |
 | **AI (Primary)** | Groq (Llama-3.3-70b-versatile) | World's fastest inference (~300 t/s) for sub-400ms dispatch |
-| **AI (Multimodal)** | Google Gemini (Gemini 2.0 Flash) | Native visual damage and audio 911 call analysis |
+| **AI (Multimodal)** | Google Gemini (gemini-3-flash-preview) | Native visual damage and audio 911 call analysis |
 | **Spatial Routing** | OSRM + Uber H3 + Haversine | Real-world road graph navigation with $O(1)$ fast spatial filtering |
 | **Database** | In-Memory (Dev) / PostGIS (Prod) | Zero friction for hackathon; enterprise-grade GIS blueprint ready |
 | **Streaming** | Server-Sent Events (SSE) | Low-overhead, firewall-friendly real-time telemetry push |

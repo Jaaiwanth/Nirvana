@@ -40,7 +40,7 @@ NIRVANA reduces this window to **under 800 milliseconds** through an automated, 
 | **Styling & Icons** | **Tailwind CSS + Lucide** | `Tailwind v3.4+`, `lucide-react` | Clean glassmorphic emergency operations center (EOC) dark-mode theme, rapid UI iteration, crisp vector iconography. |
 | **Mapping & GIS UI** | **Leaflet + React-Leaflet** | `Leaflet 1.9+`, `react-leaflet 4.x` | Zero API key requirement, lightweight (40KB vs 500KB Mapbox GL), native OpenStreetMap tile support, high-performance polyline rendering. |
 | **Primary AI Provider** | **Groq (Llama-3.3-70b-versatile)** | `groq-sdk 0.9+` | **Fastest TTFT and inference on the market** (~250-300 tokens/sec). Completes complex structured JSON extraction and decision analysis in $< 400\text{ms}$. |
-| **Multimodal AI Provider** | **Google Gemini (Gemini 2.0 Flash)** | `@google/genai` or `@google/generative-ai` | Used for processing photo uploads (e.g. fire/structural collapse damage assessment) and audio 911 calls. Unified behind a common provider interface. |
+| **Multimodal AI Provider** | **Google Gemini (gemini-3-flash-preview)** | `@google/genai` or `@google/generative-ai` | Used for processing photo uploads (e.g. fire/structural collapse damage assessment) and audio 911 calls. Unified behind a common provider interface. |
 | **Routing Engine** | **OSRM (Open Source Routing Machine)** | Public API / Self-hosted OSRM | Turn-by-turn road network routing, exact driving distances, real route polylines, and realistic traffic-factored ETAs without billing barriers. |
 | **Geospatial Index** | **Uber H3 + Haversine** | `h3-js 4.x` | Hexagonal spatial indexing for $O(1)$ radius neighbor filtering and spherical distance validation. |
 | **Database (Dev/MVP)** | **In-Memory Store with JSON Seeding** | TypeScript Map / In-Memory Repository | Zero database setup overhead, instant hot-reloading for hackathon demo, deterministic scenario resets. |
@@ -128,7 +128,7 @@ Emergency dispatch requires extracting structured parameters from unstructured d
 
 ### 4.1 Comparative Analysis
 
-| Feature | Groq (Llama-3.3-70b-versatile) | Google Gemini (Gemini 2.0 Flash) |
+| Feature | Groq (Llama-3.3-70b-versatile) | Google Gemini (gemini-3-flash-preview) |
 | :--- | :--- | :--- |
 | **Time to First Token (TTFT)** | **$\sim 120 - 180\text{ms}$ (Industry fastest)** | $\sim 450 - 700\text{ms}$ |
 | **Inference Speed** | **$\sim 280 - 320\text{ tokens/sec}$** | $\sim 80 - 120\text{ tokens/sec}$ |
@@ -160,7 +160,7 @@ export interface IAIProvider {
 ```
 
 - **Default Mode (`AI_PROVIDER=groq`):** Uses Groq's `llama-3.3-70b-versatile` with JSON schema enforcement. Total extraction latency $\approx 350\text{ms}$.
-- **Multimodal Mode (`AI_PROVIDER=gemini`):** Uses Gemini 2.0 Flash for audio 911 calls or emergency scene photo uploads.
+- **Multimodal Mode (`AI_PROVIDER=gemini`):** Uses Gemini (`gemini-3-flash-preview`) for audio 911 calls or emergency scene photo uploads.
 - **Failover:** If the active provider returns HTTP 429 or 5xx, the system transparently falls back to the alternate provider, and if both fail, triggers the **Rule-Based Deterministic Engine**.
 
 ---
@@ -392,7 +392,7 @@ gantt
 
 ### Phase 2: AI Reasoning & Real Routing Engine (Days 2–3)
 - Integrate `groq-sdk` with Llama-3.3-70b and structured JSON output prompts.
-- Implement Google Gemini 2.0 Flash fallback adapter.
+- Implement Google Gemini (`gemini-3-flash-preview`) fallback adapter.
 - Connect OSRM public API to fetch real driving distances and GeoJSON polylines.
 - Implement the Multi-Criteria Decision Agent and the rule-based safety fallback.
 

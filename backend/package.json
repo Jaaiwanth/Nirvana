@@ -10,7 +10,8 @@
     "start": "node dist/server.js",
     "lint": "tsc --noEmit",
     "test": "tsx tests/verifyPipeline.ts",
-    "test:scenarios": "tsx tests/runScenarios.ts"
+    "test:scenarios": "tsx tests/runScenarios.ts",
+    "test:benchmark": "tsx tests/benchmarks/latencyBenchmark.ts"
   },
   "keywords": [
     "emergency-response",

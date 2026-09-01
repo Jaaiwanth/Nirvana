@@ -41,6 +41,18 @@ npm run test:scenarios
 
 ---
 
+### C. AI Latency, Throughput & Cost Optimization Profiler
+```bash
+cd backend
+npm run test:benchmark
+```
+**What it tests:**
+- Profiles Groq LPU inference latency across multiple runs.
+- Compares live LLM performance against the deterministic rule engine.
+- Calculates token throughput and estimated cost per dispatch ($/1k tokens).
+
+---
+
 ## 🚀 2. Starting the Backend Server
 
 ```bash
@@ -213,6 +225,28 @@ curl -X POST http://localhost:5000/api/incidents \
   }'
 ```
 *Dispatches: `Ladder 1` (105ft Aerial Ladder Tender).*
+
+---
+
+### 3.4 Multimodal Audio & Vision Intake
+
+#### `POST /api/incidents/media`
+Ingests an emergency scene photograph (e.g., structural collapse, vehicle crash) or a 911 audio distress recording, analyzes visual and acoustic features via Google Gemini (`gemini-3-flash-preview`), and executes autonomous dispatch.
+
+**cURL:**
+```bash
+curl -X POST http://localhost:5000/api/incidents/media \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mediaBase64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+    "mimeType": "image/png",
+    "callerNote": "Photo from 5th floor balcony showing collapsed parking garage deck with 2 cars crushed.",
+    "coordinates": { "lat": 12.9716, "lng": 77.5946 }
+  }'
+```
+
+**Expected Response (201 Created):**
+Returns structured triage, calculated OSRM route, primary dispatched unit (`Task Force Alpha`), and registers real-time telemetry simulation.
 
 ---
 

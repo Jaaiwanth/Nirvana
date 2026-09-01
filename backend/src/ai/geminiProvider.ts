@@ -5,7 +5,7 @@ import { incidentTriageSchema } from '../schemas/incidentSchema.js';
 import { agentDecisionSchema } from '../schemas/decisionSchema.js';
 
 export class GeminiProvider implements IAIProvider {
-  public name = 'Google Gemini (Gemini 2.0 Flash)';
+  public name = 'Google Gemini (gemini-3-flash-preview)';
   private genAI: GoogleGenerativeAI | null = null;
 
   private getClient(): GoogleGenerativeAI {
@@ -20,9 +20,10 @@ export class GeminiProvider implements IAIProvider {
 
   async extractIncidentTriage(reportText: string): Promise<IncidentTriage> {
     const client = this.getClient();
+    const modelName = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
 
     const model = client.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: modelName,
       generationConfig: { responseMimeType: 'application/json' },
     });
 
@@ -52,9 +53,10 @@ Report: "${reportText}"`;
 
   async evaluateDispatch(triage: IncidentTriage, candidates: ScoredCandidate[]): Promise<DispatchPlan> {
     const client = this.getClient();
+    const modelName = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
 
     const model = client.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+      model: modelName,
       generationConfig: { responseMimeType: 'application/json' },
     });
 
