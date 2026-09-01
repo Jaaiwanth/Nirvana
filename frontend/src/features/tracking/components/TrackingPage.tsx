@@ -17,6 +17,7 @@ import { MapCNView } from './MapCNView';
 import { StatusPill } from '../../../components/ui/status-pill';
 import { Button } from '../../../components/ui/button';
 import { IncidentIntakeModal } from './IncidentIntakeModal';
+import { AuthStatusButton } from '../../auth/AuthStatusButton';
 import type { Incident, EmergencyTeam } from '../../../types/api';
 
 export const TrackingPage: React.FC = () => {
@@ -113,7 +114,7 @@ export const TrackingPage: React.FC = () => {
       {/* 2. Left Route & Mission Navigation Deck */}
       <aside className="w-80 shrink-0 bg-[#090a0f] border-r border-zinc-900 flex flex-col h-full z-20">
         {/* Top Action Bar */}
-        <div className="p-3 border-b border-zinc-900 flex items-center justify-between">
+        <div className="h-12 px-4 border-b border-zinc-900 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/dashboard')}
@@ -127,15 +128,18 @@ export const TrackingPage: React.FC = () => {
             </span>
           </div>
 
-          <Button
-            onClick={() => setIsIntakeOpen(true)}
-            variant="primary"
-            size="sm"
-            className="h-7 px-2 text-[11px] gap-1 bg-sky-600 hover:bg-sky-500 border-0 cursor-pointer"
-          >
-            <Plus className="h-3 w-3" />
-            <span>Intake</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setIsIntakeOpen(true)}
+              variant="primary"
+              size="sm"
+              className="h-7 px-2 text-[11px] gap-1 bg-sky-600 hover:bg-sky-500 border-0 cursor-pointer"
+            >
+              <Plus className="h-3 w-3" />
+              <span>Intake</span>
+            </Button>
+            <AuthStatusButton />
+          </div>
         </div>
 
         {/* Active Route Selection Selector */}

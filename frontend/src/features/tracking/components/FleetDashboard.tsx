@@ -21,6 +21,7 @@ import { StatusPill } from '../../../components/ui/status-pill';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { useLiveTelemetry } from '../hooks/useLiveTelemetry';
+import { AuthStatusButton } from '../../auth/AuthStatusButton';
 import type { EmergencyTeam } from '../../../types/api';
 
 export const FleetDashboard: React.FC = () => {
@@ -155,6 +156,8 @@ export const FleetDashboard: React.FC = () => {
               <span className="text-zinc-400">TOTAL FLEET:</span>
               <span className="font-bold text-white">{teams.length}</span>
             </div>
+            <span className="text-zinc-800">|</span>
+            <AuthStatusButton />
           </div>
         </div>
 

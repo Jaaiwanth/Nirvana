@@ -1,10 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
-
-interface LandingNavbarProps {
-  onLaunchEOC: () => void;
-}
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className = 'h-4 w-4' }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -12,7 +9,8 @@ const GithubIcon: React.FC<{ className?: string }> = ({ className = 'h-4 w-4' })
   </svg>
 );
 
-export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onLaunchEOC }) => {
+export const LandingNavbar: React.FC = () => {
+  const navigate = useNavigate();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -77,12 +75,12 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({ onLaunchEOC }) => 
           </a>
 
           <Button
-            onClick={onLaunchEOC}
+            onClick={() => navigate('/login')}
             variant="primary"
             size="sm"
-            className="gap-1.5 font-medium bg-sky-500 hover:bg-sky-400 text-white cursor-pointer border-0 shadow-none"
+            className="gap-1.5 font-medium bg-sky-500 hover:bg-sky-400 text-white cursor-pointer border-0 shadow-none px-4"
           >
-            <span>Launch EOC Dashboard</span>
+            <span>Sign In</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </div>

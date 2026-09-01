@@ -5,29 +5,36 @@ import { queryClient } from './lib/queryClient';
 import { LandingPage } from './features/landing';
 import { TrackingDashboard, TrackingPage, FleetDashboard } from './features/tracking';
 
+import { AuthProvider } from './features/auth/AuthContext';
+import { LoginPage } from './features/auth/LoginPage';
+import { ProtectedRoute } from './features/auth/ProtectedRoute';
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
         <Routes>
           {/* 1. Landing Page Overview */}
           <Route path="/" element={<LandingPage />} />
 
-          {/* 2. EOC Master Command Dashboard */}
-          <Route path="/dashboard" element={<TrackingDashboard />} />
+          {/* 2. Authentication Portal */}
+          <Route path="/login" element={<LoginPage />} />
 
-          {/* 3. Dedicated OSRM Road Tracing & Telemetry */}
-          <Route path="/track" element={<TrackingPage />} />
-          <Route path="/track/:incidentId" element={<TrackingPage />} />
+          {/* 3. Protected EOC Operational Routes (Requires Login) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<TrackingDashboard />} />
+            <Route path="/track" element={<TrackingPage />} />
+            <Route path="/track/:incidentId" element={<TrackingPage />} />
+            <Route path="/fleet" element={<FleetDashboard />} />
+          </Route>
 
-          {/* 4. Municipal Emergency Fleet Roster */}
-          <Route path="/fleet" element={<FleetDashboard />} />
-
-          {/* 5. Fallback */}
+          {/* 4. Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

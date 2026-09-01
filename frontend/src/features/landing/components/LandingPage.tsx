@@ -55,10 +55,10 @@ export const LandingPage: React.FC = () => {
       </div>
 
       {/* Fixed Header Navigation */}
-      <LandingNavbar onLaunchEOC={() => navigate('/dashboard')} />
+      <LandingNavbar />
 
       {/* Page 1: Full-Screen Hero Section */}
-      <HeroSection onLaunchEOC={() => navigate('/dashboard')} />
+      <HeroSection onLaunchEOC={() => navigate('/login')} />
 
       {/* Page 2: Operational Breakdown (Why Legacy CAD Fails) */}
       <ComparisonSection />

@@ -47,9 +47,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchEOC }) => {
             onClick={onLaunchEOC}
             variant="primary"
             size="lg"
-            className="gap-2 text-xs sm:text-sm font-semibold h-10 px-5 bg-sky-500 hover:bg-sky-400 text-white shadow-lg shadow-sky-500/25 border-0"
+            className="gap-2 text-xs sm:text-sm font-semibold h-10 px-5 bg-sky-500 hover:bg-sky-400 text-white shadow-lg shadow-sky-500/25 border-0 cursor-pointer"
           >
-            <span>Open Command Center</span>
+            <span>Sign In to Access EOC</span>
             <ArrowRight className="h-4 w-4" />
           </Button>
 

@@ -9,6 +9,7 @@ import { IncidentFeed } from './IncidentFeed';
 import { MapCNView } from './MapCNView';
 import { MissionBottomDrawer } from './MissionBottomDrawer';
 import { IncidentIntakeModal } from './IncidentIntakeModal';
+import { AuthStatusButton } from '../../auth/AuthStatusButton';
 import type { Incident, EmergencyTeam } from '../../../types/api';
 
 interface TrackingDashboardProps {
@@ -125,13 +126,13 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
       {/* 3. Main Center Stage: Map + Bottom Drawer */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Top Minimal Info Bar */}
-        <div className="h-10 px-4 bg-[#090a0f] border-b border-zinc-900 flex items-center justify-between z-10">
+        <div className="h-12 px-6 bg-[#090a0f] border-b border-zinc-900/90 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-zinc-400 font-bold uppercase tracking-wider">
+            <span className="text-xs font-mono text-zinc-300 font-bold uppercase tracking-wider">
               EOC EMERGENCY DISPATCH CONSOLE (/dashboard)
             </span>
-            <span className="text-zinc-600">|</span>
-            <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
+            <span className="text-zinc-700">|</span>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400">
               <span
                 className={`h-2 w-2 rounded-full ${
                   isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
@@ -141,20 +142,24 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-5 text-xs font-mono text-zinc-400">
             <button
               onClick={() => navigate('/track')}
-              className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer bg-sky-950/40 px-2.5 py-1 rounded"
+              className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer bg-sky-950/40 hover:bg-sky-900/50 border border-sky-800/40 px-3 py-1.5 rounded-md"
               title="Open full OSRM Road Tracing view"
             >
               <Compass className="h-3.5 w-3.5" />
               <span>Open OSRM Tracing (/track)</span>
               <ExternalLink className="h-3 w-3" />
             </button>
-            <span className="text-zinc-700">|</span>
-            <span>FLEET: {teams.length} UNITS</span>
-            <span className="text-zinc-700">·</span>
-            <span>ACTIVE CALLS: {incidents.length}</span>
+            <span className="text-zinc-800">|</span>
+            <div className="flex items-center gap-2">
+              <span>FLEET: <strong className="text-zinc-200">{teams.length}</strong></span>
+              <span className="text-zinc-700">·</span>
+              <span>ACTIVE CALLS: <strong className="text-zinc-200">{incidents.length}</strong></span>
+            </div>
+            <span className="text-zinc-800">|</span>
+            <AuthStatusButton />
           </div>
         </div>
 
