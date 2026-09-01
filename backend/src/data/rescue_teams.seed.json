@@ -1,0 +1,222 @@
+[
+  {
+    "id": "team_usar_01",
+    "callsign": "Task Force Alpha",
+    "baseStationName": "Central Heavy Rescue Depot",
+    "vehicleType": "Heavy Rescue Tender",
+    "status": "AVAILABLE",
+    "capabilities": ["heavy_rescue", "extrication_tools", "structural_shoring", "search_dogs"],
+    "equipmentList": ["Hydraulic Cutters", "Pneumatic Rams", "Acoustic Listening Device", "Concrete Saw"],
+    "currentLocation": { "lat": 12.9780, "lng": 77.5850 },
+    "speedFactor": 1.0
+  },
+  {
+    "id": "team_usar_02",
+    "callsign": "Task Force Bravo",
+    "baseStationName": "North Metro Rescue Station",
+    "vehicleType": "Technical Search Unit",
+    "status": "AVAILABLE",
+    "capabilities": ["heavy_rescue", "extrication_tools", "confined_space", "thermal_imaging"],
+    "equipmentList": ["Spreaders", "Search Cam", "Gas Detector", "Air Lifting Bags"],
+    "currentLocation": { "lat": 13.0100, "lng": 77.5600 },
+    "speedFactor": 1.05
+  },
+  {
+    "id": "team_medic_01",
+    "callsign": "Medic 1 (ALS)",
+    "baseStationName": "City General Hospital EMS",
+    "vehicleType": "ALS Ambulance",
+    "status": "AVAILABLE",
+    "capabilities": ["als_medical", "trauma_care", "cardiac_life_support", "patient_transport"],
+    "equipmentList": ["Defibrillator", "Ventilator", "Trauma Kit", "IV Infusion Pump"],
+    "currentLocation": { "lat": 12.9650, "lng": 77.5980 },
+    "speedFactor": 1.15
+  },
+  {
+    "id": "team_medic_02",
+    "callsign": "Medic 2 (ALS)",
+    "baseStationName": "Victoria Hospital Station",
+    "vehicleType": "ALS Ambulance",
+    "status": "AVAILABLE",
+    "capabilities": ["als_medical", "trauma_care", "patient_transport"],
+    "equipmentList": ["Defibrillator", "Suction Unit", "Oxygen Delivery", "Spine Board"],
+    "currentLocation": { "lat": 12.9620, "lng": 77.5750 },
+    "speedFactor": 1.15
+  },
+  {
+    "id": "team_medic_03",
+    "callsign": "Medic 3 (BLS)",
+    "baseStationName": "Eastside Community EMS",
+    "vehicleType": "BLS Ambulance",
+    "status": "AVAILABLE",
+    "capabilities": ["bls_medical", "first_aid", "patient_transport"],
+    "equipmentList": ["AED", "Basic Splints", "Bandages", "Stretcher"],
+    "currentLocation": { "lat": 12.9750, "lng": 77.6250 },
+    "speedFactor": 1.1
+  },
+  {
+    "id": "team_medic_04",
+    "callsign": "Medic 4 (ALS Critical)",
+    "baseStationName": "South Trauma Center",
+    "vehicleType": "Mobile Intensive Care Unit",
+    "status": "AVAILABLE",
+    "capabilities": ["als_medical", "trauma_care", "ventilator_support", "rapid_sequence_intubation"],
+    "equipmentList": ["Advanced Monitor", "Transport Ventilator", "Emergency Drug Box"],
+    "currentLocation": { "lat": 12.9400, "lng": 77.5900 },
+    "speedFactor": 1.2
+  },
+  {
+    "id": "team_fire_01",
+    "callsign": "Engine 1",
+    "baseStationName": "Downtown Fire Station 1",
+    "vehicleType": "Pumper Fire Engine",
+    "status": "AVAILABLE",
+    "capabilities": ["fire_suppression", "extrication_tools", "water_pumping", "first_aid"],
+    "equipmentList": ["1000 Gallon Tank", "Jaws of Life", "Attack Lines", "Thermal Camera"],
+    "currentLocation": { "lat": 12.9730, "lng": 77.6010 },
+    "speedFactor": 0.95
+  },
+  {
+    "id": "team_fire_02",
+    "callsign": "Ladder 1",
+    "baseStationName": "Downtown Fire Station 1",
+    "vehicleType": "105ft Aerial Ladder Tender",
+    "status": "AVAILABLE",
+    "capabilities": ["high_angle_rescue", "aerial_master_stream", "ventilation", "heavy_rescue"],
+    "equipmentList": ["Aerial Platform", "Roof Saws", "Rescue Ropes", "Positive Pressure Fans"],
+    "currentLocation": { "lat": 12.9730, "lng": 77.6010 },
+    "speedFactor": 0.85
+  },
+  {
+    "id": "team_fire_03",
+    "callsign": "Engine 2",
+    "baseStationName": "Industrial West Fire Post",
+    "vehicleType": "Heavy Foam Pumper",
+    "status": "AVAILABLE",
+    "capabilities": ["foam_fire_suppression", "industrial_fire", "hazmat_containment"],
+    "equipmentList": ["Class B Foam System", "Deck Gun", "Absorbent Booms", "Chemical Extinguishers"],
+    "currentLocation": { "lat": 12.9900, "lng": 77.5400 },
+    "speedFactor": 0.9
+  },
+  {
+    "id": "team_fire_04",
+    "callsign": "Engine 3",
+    "baseStationName": "Koramangala Fire Sub-Station",
+    "vehicleType": "Pumper Fire Engine",
+    "status": "AVAILABLE",
+    "capabilities": ["fire_suppression", "extrication_tools", "first_aid"],
+    "equipmentList": ["Water Tank", "Hose Packs", "Combi Tool Cutters"],
+    "currentLocation": { "lat": 12.9350, "lng": 77.6200 },
+    "speedFactor": 0.95
+  },
+  {
+    "id": "team_hazmat_01",
+    "callsign": "Hazmat Unit 1",
+    "baseStationName": "Regional Hazardous Materials Base",
+    "vehicleType": "Hazmat Response Tender",
+    "status": "AVAILABLE",
+    "capabilities": ["hazmat_containment", "chemical_detection", "decontamination", "radiation_monitoring"],
+    "equipmentList": ["Level A Suits", "Mass Spec Gas Analyzer", "Decon Shower System", "Plugging & Patching Kit"],
+    "currentLocation": { "lat": 12.9850, "lng": 77.5700 },
+    "speedFactor": 0.9
+  },
+  {
+    "id": "team_hazmat_02",
+    "callsign": "Hazmat Support 2",
+    "baseStationName": "Tech Park Fire & Safety",
+    "vehicleType": "Rapid Decon Van",
+    "status": "AVAILABLE",
+    "capabilities": ["decontamination", "neutralization", "gas_sampling"],
+    "equipmentList": ["Neutralizer Spray", "Chemical Sorbents", "Colorimetric Tubes"],
+    "currentLocation": { "lat": 12.9800, "lng": 77.6500 },
+    "speedFactor": 1.0
+  },
+  {
+    "id": "team_water_01",
+    "callsign": "Marine 1 (Fast Boat)",
+    "baseStationName": "Lake & River Rescue Dock",
+    "vehicleType": "Rigid Inflatable Boat (RIB)",
+    "status": "AVAILABLE",
+    "capabilities": ["fast_water_rescue", "dive_recovery", "flood_evacuation"],
+    "equipmentList": ["Twin Outboards", "Sonar Unit", "Scuba Sets", "Inflatable Throw Bags"],
+    "currentLocation": { "lat": 12.9950, "lng": 77.5890 },
+    "speedFactor": 1.3
+  },
+  {
+    "id": "team_water_02",
+    "callsign": "Flood Squad 2",
+    "baseStationName": "Civil Defense Emergency Store",
+    "vehicleType": "Amphibious Rescue Carrier",
+    "status": "AVAILABLE",
+    "capabilities": ["flood_evacuation", "shallow_water_transport", "high_water_vehicle"],
+    "equipmentList": ["High Clearance Chassis", "Life Vests", "Rope Rigging", "Megaphone"],
+    "currentLocation": { "lat": 12.9500, "lng": 77.6400 },
+    "speedFactor": 0.8
+  },
+  {
+    "id": "team_police_01",
+    "callsign": "Patrol 101",
+    "baseStationName": "Central Police Commissionerate",
+    "vehicleType": "Rapid Response Interceptor",
+    "status": "AVAILABLE",
+    "capabilities": ["perimeter_control", "traffic_diversion", "first_aid", "crowd_control"],
+    "equipmentList": ["Spike Strips", "Emergency Cones", "AED Defibrillator", "Barricade Tape"],
+    "currentLocation": { "lat": 12.9700, "lng": 77.5920 },
+    "speedFactor": 1.25
+  },
+  {
+    "id": "team_police_02",
+    "callsign": "Patrol 204",
+    "baseStationName": "Indiranagar Traffic Division",
+    "vehicleType": "Traffic Safety Cruiser",
+    "status": "AVAILABLE",
+    "capabilities": ["traffic_diversion", "corridor_clearance", "escort"],
+    "equipmentList": ["Traffic Flares", "Public Address System", "First Aid Kit"],
+    "currentLocation": { "lat": 12.9780, "lng": 77.6400 },
+    "speedFactor": 1.2
+  },
+  {
+    "id": "team_drone_01",
+    "callsign": "SkyRecon 1",
+    "baseStationName": "Disaster Management Cell",
+    "vehicleType": "Mobile Drone Command Trailer",
+    "status": "AVAILABLE",
+    "capabilities": ["aerial_reconnaissance", "thermal_mapping", "search_and_rescue"],
+    "equipmentList": ["4K Thermal Zoom Drones", "Tethered Power System", "Satellite Uplink"],
+    "currentLocation": { "lat": 12.9750, "lng": 77.5950 },
+    "speedFactor": 1.4
+  },
+  {
+    "id": "team_drone_02",
+    "callsign": "SkyRecon 2",
+    "baseStationName": "North Emergency Logistics",
+    "vehicleType": "Autonomous UAV Transport",
+    "status": "AVAILABLE",
+    "capabilities": ["aerial_reconnaissance", "payload_drop", "night_vision"],
+    "equipmentList": ["Emergency Supply Drop Drones", "FLIR Sensors", "Spotlight"],
+    "currentLocation": { "lat": 13.0200, "lng": 77.5800 },
+    "speedFactor": 1.5
+  },
+  {
+    "id": "team_utility_01",
+    "callsign": "Grid Rescue 1",
+    "baseStationName": "Municipal Electric & Gas Dept",
+    "vehicleType": "Utility Isolation Truck",
+    "status": "AVAILABLE",
+    "capabilities": ["gas_leak_isolation", "power_grid_shutdown", "generator_power"],
+    "equipmentList": ["Methane Sniffers", "High Voltage Cutters", "Mobile 50kVA Generator"],
+    "currentLocation": { "lat": 12.9820, "lng": 77.5650 },
+    "speedFactor": 0.95
+  },
+  {
+    "id": "team_k9_01",
+    "callsign": "K9 Search Unit 1",
+    "baseStationName": "State Police Dog Squad",
+    "vehicleType": "Canine Transport Cruiser",
+    "status": "AVAILABLE",
+    "capabilities": ["search_dogs", "scent_tracking", "wilderness_search"],
+    "equipmentList": ["2 Certified USAR Dogs", "K9 GPS Collars", "Canine First Aid"],
+    "currentLocation": { "lat": 12.9600, "lng": 77.6100 },
+    "speedFactor": 1.1
+  }
+]
