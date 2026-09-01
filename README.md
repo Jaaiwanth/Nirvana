@@ -1,4 +1,4 @@
-# 🚨 NIRVANA: Autonomous Emergency Response Coordinator
+# NIRVANA: Autonomous Emergency Response Coordinator
 
 [![Architecture Status](https://img.shields.io/badge/Architecture-Approved-success?style=for-the-badge&logo=blueprint)](docs/IMPLEMENTATION.md)
 [![Stack](https://img.shields.io/badge/Stack-React%20%7C%20Express%20%7C%20Groq%20%7C%20OSRM-blue?style=for-the-badge)](docs/IMPLEMENTATION.md)
