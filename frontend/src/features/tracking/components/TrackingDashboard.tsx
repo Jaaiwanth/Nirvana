@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Compass } from 'lucide-react';
+import { ExternalLink, Compass, ListFilter } from 'lucide-react';
+import { cn } from '../../../lib/utils';
 import { trackingApi } from '../api/trackingApi';
 import { useLiveTelemetry } from '../hooks/useLiveTelemetry';
 import { TrackingSidebar } from './TrackingSidebar';
@@ -23,6 +24,7 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
   const queryClient = useQueryClient();
   const [activeIncidentId, setActiveIncidentId] = useState<string | null>(initialIncidentId || null);
   const [isIntakeModalOpen, setIsIntakeModalOpen] = useState(false);
+  const [isMobileFeedOpen, setIsMobileFeedOpen] = useState(false);
 
   // 1. Fetch Resources / Units
   const { data: teams = [] } = useQuery<EmergencyTeam[]>({
@@ -110,55 +112,95 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
 
   return (
     <div className="flex h-screen w-full bg-[#090a0f] text-zinc-100 overflow-hidden select-none">
-      {/* 1. Left Vertical Dock */}
+      {/* 1. Left Vertical Dock (Desktop) / Bottom Nav (Mobile) */}
       <TrackingSidebar
         activeCount={incidents.filter((i) => i.status === 'DISPATCHED' || i.status === 'ON_SCENE').length}
+        onToggleFeed={() => setIsMobileFeedOpen(!isMobileFeedOpen)}
+        isFeedOpen={isMobileFeedOpen}
       />
 
-      {/* 2. Left Panel: Incident Feed List */}
-      <IncidentFeed
-        incidents={incidents}
-        selectedIncidentId={selectedIncident?.id || null}
-        onSelectIncident={(inc) => setActiveIncidentId(inc.id)}
-        onOpenIntakeModal={() => setIsIntakeModalOpen(true)}
-      />
+      {/* Mobile Backdrop for Incident Feed Drawer */}
+      {isMobileFeedOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+          onClick={() => setIsMobileFeedOpen(false)}
+        />
+      )}
+
+      {/* 2. Left Panel: Incident Feed List (Responsive Slide-over on mobile) */}
+      <div
+        className={cn(
+          'fixed md:relative inset-y-0 left-0 z-50 md:z-auto transition-transform duration-300 md:translate-x-0 h-full',
+          isMobileFeedOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+        )}
+      >
+        <IncidentFeed
+          incidents={incidents}
+          selectedIncidentId={selectedIncident?.id || null}
+          onSelectIncident={(inc) => {
+            setActiveIncidentId(inc.id);
+            setIsMobileFeedOpen(false);
+          }}
+          onOpenIntakeModal={() => {
+            setIsMobileFeedOpen(false);
+            setIsIntakeModalOpen(true);
+          }}
+          onCloseMobile={() => setIsMobileFeedOpen(false)}
+        />
+      </div>
 
       {/* 3. Main Center Stage: Map + Bottom Drawer */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        {/* Top Minimal Info Bar */}
-        <div className="h-12 px-6 bg-[#090a0f] border-b border-zinc-900/90 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-zinc-300 font-bold uppercase tracking-wider">
+        {/* Top Minimal Info Bar (Mobile Friendly) */}
+        <div className="h-12 px-3 sm:px-6 bg-[#090a0f] border-b border-zinc-900/90 flex items-center justify-between z-10 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile Feed Toggle Button */}
+            <button
+              onClick={() => setIsMobileFeedOpen(true)}
+              className="md:hidden px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-sky-400 hover:text-white flex items-center gap-1.5 text-xs font-mono font-semibold cursor-pointer shadow-sm"
+              title="Open Incident Feed"
+            >
+              <ListFilter className="h-3.5 w-3.5" />
+              <span>Calls ({incidents.length})</span>
+            </button>
+
+            <span className="hidden sm:inline text-xs font-mono text-zinc-300 font-bold uppercase tracking-wider">
               EOC EMERGENCY DISPATCH CONSOLE (/dashboard)
             </span>
-            <span className="text-zinc-700">|</span>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400">
+            <span className="sm:hidden text-xs font-mono text-zinc-300 font-bold uppercase tracking-wider">
+              EOC CONSOLE
+            </span>
+            <span className="text-zinc-700 hidden sm:inline">|</span>
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-mono text-zinc-400">
               <span
                 className={`h-2 w-2 rounded-full ${
                   isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
                 }`}
               />
-              <span>{isConnected ? 'SSE STREAM: ACTIVE' : 'CONNECTING...'}</span>
+              <span className="hidden sm:inline">{isConnected ? 'SSE STREAM: ACTIVE' : 'CONNECTING...'}</span>
+              <span className="sm:hidden">{isConnected ? 'LIVE' : 'CONN...'}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-5 text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-2 sm:gap-5 text-xs font-mono text-zinc-400">
             <button
               onClick={() => navigate('/track')}
-              className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer bg-sky-950/40 hover:bg-sky-900/50 border border-sky-800/40 px-3 py-1.5 rounded-md"
+              className="hidden md:flex items-center gap-1.5 text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer bg-sky-950/40 hover:bg-sky-900/50 border border-sky-800/40 px-3 py-1.5 rounded-md"
               title="Open full OSRM Road Tracing view"
             >
               <Compass className="h-3.5 w-3.5" />
               <span>Open OSRM Tracing (/track)</span>
               <ExternalLink className="h-3 w-3" />
             </button>
-            <span className="text-zinc-800">|</span>
-            <div className="flex items-center gap-2">
+
+            <div className="hidden lg:flex items-center gap-2">
+              <span className="text-zinc-800">|</span>
               <span>FLEET: <strong className="text-zinc-200">{teams.length}</strong></span>
               <span className="text-zinc-700">·</span>
               <span>ACTIVE CALLS: <strong className="text-zinc-200">{incidents.length}</strong></span>
+              <span className="text-zinc-800">|</span>
             </div>
-            <span className="text-zinc-800">|</span>
+
             <AuthStatusButton />
           </div>
         </div>
