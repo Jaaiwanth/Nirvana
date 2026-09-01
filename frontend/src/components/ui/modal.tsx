@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from './button';
@@ -36,18 +37,18 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity z-[9999]"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
       <div
         className={cn(
-          'relative z-50 w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl text-zinc-100 animate-in fade-in zoom-in-95 duration-150',
+          'relative z-[10000] w-full max-w-lg rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl text-zinc-100 animate-in fade-in zoom-in-95 duration-150',
           className
         )}
       >
@@ -62,7 +63,7 @@ export const Modal: React.FC<ModalProps> = ({
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-7 w-7 text-zinc-400 hover:text-zinc-100"
+            className="h-7 w-7 text-zinc-400 hover:text-zinc-100 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -70,6 +71,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         <div className="pt-4">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

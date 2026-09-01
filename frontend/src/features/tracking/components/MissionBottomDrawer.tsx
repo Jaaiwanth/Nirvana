@@ -51,9 +51,16 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
     ? 0.0
     : (activeTelemetry?.etaMinutes ?? primaryTeam?.etaMinutes ?? 0.0);
 
+  const totalDistanceKm =
+    primaryTeam?.distanceKm && primaryTeam.distanceKm > 0
+      ? primaryTeam.distanceKm
+      : activeTelemetry?.remainingDistanceKm && activeTelemetry.remainingDistanceKm > 0
+      ? activeTelemetry.remainingDistanceKm
+      : 3.5;
+
   const remainingDist = isResolved || isOnScene
     ? 0.0
-    : (activeTelemetry?.remainingDistanceKm ?? primaryTeam?.distanceKm ?? 0.0);
+    : (activeTelemetry?.remainingDistanceKm ?? totalDistanceKm);
 
   const statusVariant = isResolved || isOnScene
     ? 'success'
@@ -190,15 +197,15 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
               </div>
 
               {/* Center: Route Timeline Progress Bar */}
-              <div className="flex-1 w-full max-w-xl px-4 flex flex-col justify-center">
-                <div className="flex items-center justify-between text-xs font-mono text-zinc-400 mb-1.5">
-                  <span className="text-zinc-300 font-semibold">
+              <div className="flex-1 w-full max-w-2xl min-w-0 px-4 flex flex-col justify-center">
+                <div className="flex items-center justify-between text-xs font-mono text-zinc-400 mb-1.5 whitespace-nowrap gap-2">
+                  <span className="text-zinc-300 font-semibold shrink-0">
                     {primaryTeam ? 'DISPATCH STATION' : 'ORIGIN'}
                   </span>
-                  <span className={isResolved || isOnScene ? 'text-emerald-400 font-bold' : 'text-sky-400 font-bold'}>
+                  <span className={`font-bold px-2 text-center truncate ${isResolved || isOnScene ? 'text-emerald-400' : 'text-sky-400'}`}>
                     {isResolved ? 'MISSION RESOLVED: 100%' : isOnScene ? 'ON SCENE: 100%' : `ON ROUTE: ${progressPct}%`}
                   </span>
-                  <span className="text-zinc-300 font-semibold">
+                  <span className="text-zinc-300 font-semibold shrink-0">
                     {isResolved ? 'SCENE SECURED' : 'EMERGENCY SCENE'}
                   </span>
                 </div>
@@ -215,38 +222,42 @@ export const MissionBottomDrawer: React.FC<MissionBottomDrawerProps> = ({
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-1.5">
-                  <span>DEP: 0.00 km</span>
-                  <span className={isResolved || isOnScene ? 'text-emerald-400 font-bold' : 'text-zinc-400'}>
+                <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mt-1.5 whitespace-nowrap gap-2">
+                  <span className="shrink-0 text-zinc-400">DEP: 0.0 km</span>
+                  <span className={`px-2 text-center truncate ${isResolved || isOnScene ? 'text-emerald-400 font-bold' : 'text-zinc-400'}`}>
                     {isResolved
                       ? 'MISSION ACCOMPLISHED · TASK AUTO-CLOSED'
                       : isOnScene
                       ? 'UNIT ARRIVED ON SCENE · OPERATIONS ACTIVE'
                       : `APPROX ${etaMin.toFixed(1)} MIN REMAINING`}
                   </span>
-                  <span>ARR: {remainingDist.toFixed(1)} km</span>
+                  <span className="shrink-0 text-zinc-300 font-semibold">
+                    ARR: {totalDistanceKm.toFixed(1)} km
+                  </span>
                 </div>
               </div>
 
               {/* Right: Key Telemetry Metric Cards */}
               <div className="grid grid-cols-3 gap-3 shrink-0 w-full md:w-auto">
                 <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 flex flex-col items-center justify-center min-w-24">
-                  <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 mb-1">
+                  <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 mb-1 whitespace-nowrap">
                     <Clock className={`h-3 w-3 ${isResolved || isOnScene ? 'text-emerald-400' : 'text-sky-400'}`} />
                     <span>ESTIMATE</span>
                   </div>
-                  <span className={`text-base font-bold font-mono ${isResolved || isOnScene ? 'text-emerald-400' : 'text-zinc-100'}`}>
+                  <span className={`text-base font-bold font-mono ${isResolved || isOnScene ? 'text-emerald-400' : 'text-zinc-100'} whitespace-nowrap`}>
                     {isResolved ? 'CLOSED' : `${etaMin.toFixed(1)}m`}
                   </span>
                 </div>
 
                 <div className="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800 flex flex-col items-center justify-center min-w-24">
-                  <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 mb-1">
+                  <div className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 mb-1 whitespace-nowrap">
                     <Navigation className="h-3 w-3 text-emerald-400" />
-                    <span>DISTANCE</span>
+                    <span>{isResolved || isOnScene ? 'TOTAL DIST' : 'DISTANCE'}</span>
                   </div>
-                  <span className="text-base font-bold font-mono text-zinc-100">
-                    {remainingDist.toFixed(1)} km
+                  <span className="text-base font-bold font-mono text-zinc-100 whitespace-nowrap">
+                    {isResolved || isOnScene
+                      ? `${totalDistanceKm.toFixed(1)} km`
+                      : `${remainingDist.toFixed(1)} km`}
                   </span>
                 </div>
 
