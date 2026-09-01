@@ -10,3 +10,5 @@ app.listen(PORT, () => {
   console.log(`📡 SSE Stream active at http://localhost:${PORT}/api/events`);
   console.log(`🚑 Fleet resources ready: In-memory datastore initialized with 20 municipal units.`);
 });
+
+export default app;

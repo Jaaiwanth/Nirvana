@@ -30,3 +30,5 @@ app.use('/api/incidents', incidentRouter);
 app.use('/api/scenarios', scenarioRouter);
 app.use('/api/simulate', simulationRouter);
 app.use('/api/events', eventRouter);
+
+export default app;
