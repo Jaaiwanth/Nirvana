@@ -13,7 +13,13 @@ export interface IResourceRepository {
   createIncident(incident: Incident): Promise<Incident>;
   getIncidentById(id: string): Promise<Incident | null>;
   listIncidents(): Promise<Incident[]>;
+  updateIncidentStatus(id: string, status: 'REPORTED' | 'TRIAGED' | 'DISPATCHED' | 'ON_SCENE' | 'RESOLVED'): Promise<Incident | null>;
   resetToSeed(): Promise<void>;
+  findCandidateRescueTeams?(
+    incidentLocation: Coordinates,
+    requiredCapabilities?: string[],
+    maxRadiusKm?: number
+  ): Promise<any[]>;
 }
 
 export class InMemoryResourceRepository implements IResourceRepository {
@@ -101,4 +107,8 @@ export class InMemoryResourceRepository implements IResourceRepository {
   }
 }
 
-export const resourceRepo = new InMemoryResourceRepository();
+import { SupabaseResourceRepository } from './supabaseResourceRepository.js';
+
+export const resourceRepo: IResourceRepository = process.env.SUPABASE_URL
+  ? new SupabaseResourceRepository()
+  : new InMemoryResourceRepository();
