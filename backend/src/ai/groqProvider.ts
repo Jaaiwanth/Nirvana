@@ -1,6 +1,8 @@
 import Groq from 'groq-sdk';
 import { IAIProvider } from './aiProvider.interface.js';
 import { IncidentTriage, ScoredCandidate, DispatchPlan, DispatchedTeamInfo } from '../types/index.js';
+import { incidentTriageSchema } from '../schemas/incidentSchema.js';
+import { agentDecisionSchema } from '../schemas/decisionSchema.js';
 
 export class GroqProvider implements IAIProvider {
   public name = 'Groq (Llama-3.3-70b-versatile)';
@@ -42,7 +44,14 @@ Capabilities must be chosen from: ["heavy_rescue", "extrication_tools", "structu
     const content = response.choices[0]?.message?.content;
     if (!content) throw new Error('Empty response from Groq');
 
-    return JSON.parse(content) as IncidentTriage;
+    const parsedJson = JSON.parse(content);
+    const validation = incidentTriageSchema.safeParse(parsedJson);
+
+    if (!validation.success) {
+      throw new Error(`Groq structured extraction failed Zod validation: ${JSON.stringify(validation.error.format())}`);
+    }
+
+    return validation.data as IncidentTriage;
   }
 
   async evaluateDispatch(triage: IncidentTriage, candidates: ScoredCandidate[]): Promise<DispatchPlan> {
@@ -86,7 +95,14 @@ Return ONLY a JSON object with this schema:
     const content = response.choices[0]?.message?.content;
     if (!content) throw new Error('Empty response from Groq');
 
-    const result = JSON.parse(content);
+    const parsedJson = JSON.parse(content);
+    const validation = agentDecisionSchema.safeParse(parsedJson);
+
+    if (!validation.success) {
+      throw new Error(`Groq dispatch decision failed Zod validation: ${JSON.stringify(validation.error.format())}`);
+    }
+
+    const result = validation.data;
 
     const primaryCandidate = candidates.find((c) => c.team.id === result.primaryTeamId) || candidates[0];
     const primaryTeam: DispatchedTeamInfo = {

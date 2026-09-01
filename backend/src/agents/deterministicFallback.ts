@@ -13,38 +13,61 @@ export function deterministicTriage(reportText: string): IncidentTriage {
   let estimatedVictims = 1;
   let trappedVictims = false;
 
-  if (text.includes('collapse') || text.includes('rubble') || text.includes('building fall')) {
+  // Medical Trauma & Cardiac
+  if (text.includes('cardiac') || text.includes('heart') || text.includes('cpr') || (text.includes('collapsed') && (text.includes('passenger') || text.includes('person') || text.includes('man') || text.includes('woman')))) {
+    incidentType = 'medical_trauma';
+    severity = 'CRITICAL';
+    requiredCapabilities.push('als_medical', 'cardiac_life_support', 'patient_transport');
+  } 
+  // Structural Collapse
+  else if (text.includes('building collapse') || text.includes('cave-in') || (text.includes('collapse') && (text.includes('structure') || text.includes('wall') || text.includes('ceiling') || text.includes('slab') || text.includes('foundation') || text.includes('warehouse')))) {
     incidentType = 'structural_collapse';
     severity = 'CRITICAL';
     requiredCapabilities.push('heavy_rescue', 'extrication_tools', 'structural_shoring');
     trappedVictims = true;
     estimatedVictims = 3;
-  } else if (text.includes('fire') || text.includes('blaze') || text.includes('smoke')) {
+  } 
+  // Fire & Explosions
+  else if (text.includes('fire') || text.includes('blaze') || text.includes('smoke') || text.includes('flames')) {
     incidentType = 'fire';
-    severity = text.includes('heavy') || text.includes('explosion') ? 'CRITICAL' : 'HIGH';
-    requiredCapabilities.push('fire_suppression', 'extrication_tools');
-    if (text.includes('chemical') || text.includes('industrial')) {
-      requiredCapabilities.push('foam_fire_suppression', 'hazmat_containment');
+    severity = text.includes('heavy') || text.includes('explosion') || text.includes('trapped') ? 'CRITICAL' : 'HIGH';
+    requiredCapabilities.push('fire_suppression');
+    if (text.includes('high-rise') || text.includes('tower') || text.includes('floor')) {
+      requiredCapabilities.push('aerial_master_stream', 'high_angle_rescue');
     }
-  } else if (text.includes('crash') || text.includes('collision') || text.includes('pileup') || text.includes('accident')) {
+    if (text.includes('oil') || text.includes('chemical') || text.includes('industrial') || text.includes('transformer')) {
+      requiredCapabilities.push('foam_fire_suppression', 'gas_leak_isolation');
+    }
+  } 
+  // Traffic Collisions
+  else if (text.includes('crash') || text.includes('collision') || text.includes('pileup') || text.includes('accident')) {
     incidentType = 'traffic_collision';
     severity = text.includes('trapped') || text.includes('pinned') ? 'CRITICAL' : 'HIGH';
     requiredCapabilities.push('extrication_tools', 'als_medical');
     if (text.includes('trapped') || text.includes('pinned')) {
       trappedVictims = true;
     }
-  } else if (text.includes('chemical') || text.includes('gas leak') || text.includes('toxic') || text.includes('fumes')) {
+  } 
+  // Hazmat & Gas Leaks
+  else if (text.includes('chemical') || text.includes('chlorine') || text.includes('gas leak') || text.includes('gas main') || text.includes('rupture') || text.includes('toxic') || text.includes('fumes')) {
     incidentType = 'hazmat';
     severity = 'HIGH';
     requiredCapabilities.push('hazmat_containment', 'chemical_detection', 'decontamination');
-  } else if (text.includes('flood') || text.includes('drowning') || text.includes('water') || text.includes('river')) {
+    if (text.includes('gas')) {
+      requiredCapabilities.push('gas_leak_isolation');
+    }
+  } 
+  // Floods & Water Distress
+  else if (text.includes('flood') || text.includes('drowning') || text.includes('water') || text.includes('river') || text.includes('lake')) {
     incidentType = 'flood';
     severity = 'HIGH';
     requiredCapabilities.push('fast_water_rescue', 'flood_evacuation');
-  } else if (text.includes('heart') || text.includes('cardiac') || text.includes('unconscious') || text.includes('bleeding')) {
-    incidentType = 'medical_trauma';
-    severity = 'CRITICAL';
-    requiredCapabilities.push('als_medical', 'trauma_care');
+  } 
+  // Missing Persons / Wilderness
+  else if (text.includes('missing') || text.includes('lost') || text.includes('hiker') || text.includes('child')) {
+    incidentType = 'other';
+    severity = 'HIGH';
+    requiredCapabilities.push('search_dogs', 'aerial_reconnaissance', 'scent_tracking');
   }
 
   // Always ensure ALS medical support for critical cases
@@ -102,13 +125,26 @@ export function deterministicDispatch(
     }
   }
 
+  // Check for fleet exhaustion (no available unit matched the required capabilities)
+  let isExhaustionSubstitute = false;
+  let exhaustionWarning: string | undefined = undefined;
+
+  if (triage.requiredCapabilities.length > 0 && primaryCandidate.capabilityMatchCount === 0) {
+    isExhaustionSubstitute = true;
+    exhaustionWarning = `⚠️ FLEET EXHAUSTION NOTICE: All specialized units for required capabilities [${triage.requiredCapabilities.join(', ')}] are currently committed on other incidents. Dispatched nearest available unit ${primaryTeam.callsign} (${primaryTeam.vehicleType}) as emergency cross-trained substitute.`;
+  }
+
   return {
     primaryTeam,
     secondarySupport,
-    reasoning: `[Failsafe Rule Engine] Dispatched ${primaryTeam.callsign} (${primaryTeam.vehicleType}) with estimated ETA ${primaryTeam.etaMinutes} min based on maximum capability match. ${
-      secondarySupport.length > 0 ? `Assigned ${secondarySupport[0].callsign} for emergency medical support.` : ''
-    }`,
+    reasoning: isExhaustionSubstitute
+      ? `${exhaustionWarning} Estimated ETA: ${primaryTeam.etaMinutes} min.`
+      : `[Failsafe Rule Engine] Dispatched ${primaryTeam.callsign} (${primaryTeam.vehicleType}) with estimated ETA ${primaryTeam.etaMinutes} min based on maximum capability match (${primaryCandidate.capabilityMatchCount} matched). ${
+          secondarySupport.length > 0 ? `Assigned ${secondarySupport[0].callsign} for emergency medical support.` : ''
+        }`,
     priority: triage.severity,
     isFallback: true,
+    isExhaustionSubstitute,
+    exhaustionWarning,
   };
 }

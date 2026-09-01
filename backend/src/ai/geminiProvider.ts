@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { IAIProvider } from './aiProvider.interface.js';
 import { IncidentTriage, ScoredCandidate, DispatchPlan, DispatchedTeamInfo } from '../types/index.js';
+import { incidentTriageSchema } from '../schemas/incidentSchema.js';
+import { agentDecisionSchema } from '../schemas/decisionSchema.js';
 
 export class GeminiProvider implements IAIProvider {
   public name = 'Google Gemini (Gemini 2.0 Flash)';
@@ -37,7 +39,14 @@ Report: "${reportText}"`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    return JSON.parse(text) as IncidentTriage;
+    const parsedJson = JSON.parse(text);
+
+    const validation = incidentTriageSchema.safeParse(parsedJson);
+    if (!validation.success) {
+      throw new Error(`Gemini structured extraction failed Zod validation: ${JSON.stringify(validation.error.format())}`);
+    }
+
+    return validation.data as IncidentTriage;
   }
 
   async evaluateDispatch(triage: IncidentTriage, candidates: ScoredCandidate[]): Promise<DispatchPlan> {
@@ -74,7 +83,14 @@ Candidate Units: ${JSON.stringify(candidatesSummary)}`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const parsed = JSON.parse(text);
+    const parsedJson = JSON.parse(text);
+
+    const validation = agentDecisionSchema.safeParse(parsedJson);
+    if (!validation.success) {
+      throw new Error(`Gemini dispatch decision failed Zod validation: ${JSON.stringify(validation.error.format())}`);
+    }
+
+    const parsed = validation.data;
 
     const primaryCandidate = candidates.find((c) => c.team.id === parsed.primaryTeamId) || candidates[0];
     const primaryTeam: DispatchedTeamInfo = {

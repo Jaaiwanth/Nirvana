@@ -76,6 +76,8 @@ export interface DispatchPlan {
   reasoning: string;
   priority: SeverityLevel;
   isFallback: boolean;
+  isExhaustionSubstitute?: boolean;
+  exhaustionWarning?: string;
 }
 
 export interface TelemetryUpdate {

@@ -4,6 +4,7 @@ import { resourceRouter } from './routes/resourceRoutes.js';
 import { incidentRouter } from './routes/incidentRoutes.js';
 import { simulationRouter } from './routes/simulationRoutes.js';
 import { eventRouter } from './routes/eventRoutes.js';
+import { scenarioRouter } from './routes/scenarioRoutes.js';
 
 export const app = express();
 
@@ -22,5 +23,6 @@ app.get('/health', (_req: Request, res: Response) => {
 // Modular REST & Event Routes
 app.use('/api/resources', resourceRouter);
 app.use('/api/incidents', incidentRouter);
+app.use('/api/scenarios', scenarioRouter);
 app.use('/api/simulate', simulationRouter);
 app.use('/api/events', eventRouter);
