@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ExternalLink, Compass } from 'lucide-react';
 import { trackingApi } from '../api/trackingApi';
 import { useLiveTelemetry } from '../hooks/useLiveTelemetry';
 import { TrackingSidebar } from './TrackingSidebar';
@@ -10,16 +12,14 @@ import { IncidentIntakeModal } from './IncidentIntakeModal';
 import type { Incident, EmergencyTeam } from '../../../types/api';
 
 interface TrackingDashboardProps {
-  onGoHome: () => void;
   initialIncidentId?: string | null;
 }
 
 export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
-  onGoHome,
   initialIncidentId,
 }) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeView, setActiveView] = useState<'dashboard' | 'missions' | 'fleet' | 'analytics'>('missions');
   const [activeIncidentId, setActiveIncidentId] = useState<string | null>(initialIncidentId || null);
   const [isIntakeModalOpen, setIsIntakeModalOpen] = useState(false);
 
@@ -35,7 +35,7 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
     queryFn: trackingApi.getIncidents,
   });
 
-  // Derive selected incident cleanly without setState in effect
+  // Derive selected incident cleanly
   const selectedIncident =
     (activeIncidentId ? incidents.find((i) => i.id === activeIncidentId) : null) ||
     (initialIncidentId ? incidents.find((i) => i.id === initialIncidentId) : null) ||
@@ -71,10 +71,18 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
     },
   });
 
-  // 5. Mutation: Create Custom Incident
+  // 5. Mutation: Create Custom Incidents (Text and Multimodal Media)
   const createIncidentMutation = useMutation({
     mutationFn: (data: { reportText: string; coordinates: { lat: number; lng: number } }) =>
       trackingApi.createIncident(data.reportText, data.coordinates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['incidents'] });
+      queryClient.invalidateQueries({ queryKey: ['resources'] });
+    },
+  });
+
+  const createMediaMutation = useMutation({
+    mutationFn: trackingApi.createMediaIncident,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
       queryClient.invalidateQueries({ queryKey: ['resources'] });
@@ -86,12 +94,9 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
     : undefined;
 
   return (
-    <div className="flex h-screen w-screen bg-[#090a0f] text-zinc-100 overflow-hidden select-none">
+    <div className="flex h-screen w-full bg-[#090a0f] text-zinc-100 overflow-hidden select-none">
       {/* 1. Left Vertical Dock */}
       <TrackingSidebar
-        activeView={activeView}
-        onViewChange={setActiveView}
-        onGoHome={onGoHome}
         activeCount={incidents.filter((i) => i.status === 'DISPATCHED').length}
       />
 
@@ -109,7 +114,7 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
         <div className="h-10 px-4 bg-[#090a0f] border-b border-zinc-900 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <span className="text-xs font-mono text-zinc-400 font-bold uppercase tracking-wider">
-              EOC EMERGENCY DISPATCH CONSOLE
+              EOC EMERGENCY DISPATCH CONSOLE (/dashboard)
             </span>
             <span className="text-zinc-600">|</span>
             <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
@@ -122,9 +127,19 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs font-mono text-zinc-400">
+          <div className="flex items-center gap-4 text-xs font-mono text-zinc-400">
+            <button
+              onClick={() => navigate('/track')}
+              className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300 font-semibold transition-colors cursor-pointer bg-sky-950/40 px-2.5 py-1 rounded"
+              title="Open full OSRM Road Tracing view"
+            >
+              <Compass className="h-3.5 w-3.5" />
+              <span>Open OSRM Tracing (/track)</span>
+              <ExternalLink className="h-3 w-3" />
+            </button>
+            <span className="text-zinc-700">|</span>
             <span>FLEET: {teams.length} UNITS</span>
-            <span className="text-zinc-600">·</span>
+            <span className="text-zinc-700">·</span>
             <span>ACTIVE CALLS: {incidents.length}</span>
           </div>
         </div>
@@ -149,14 +164,17 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
         />
       </main>
 
-      {/* Intake Modal */}
+      {/* Multimodal Incident Intake Modal */}
       <IncidentIntakeModal
         isOpen={isIntakeModalOpen}
         onClose={() => setIsIntakeModalOpen(false)}
-        onSubmit={async (text, coords) => {
+        onSubmitText={async (text, coords) => {
           await createIncidentMutation.mutateAsync({ reportText: text, coordinates: coords });
         }}
-        isLoading={createIncidentMutation.isPending}
+        onSubmitMedia={async (payload) => {
+          await createMediaMutation.mutateAsync(payload);
+        }}
+        isLoading={createIncidentMutation.isPending || createMediaMutation.isPending}
       />
     </div>
   );

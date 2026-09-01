@@ -1,9 +1,9 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Radio,
-  Truck,
-  GitBranch,
+  CarFront,
   Settings,
   Headphones,
   Home,
@@ -11,24 +11,22 @@ import {
 import { cn } from '../../../lib/utils';
 
 interface TrackingSidebarProps {
-  activeView: 'dashboard' | 'missions' | 'fleet' | 'analytics';
-  onViewChange: (view: 'dashboard' | 'missions' | 'fleet' | 'analytics') => void;
-  onGoHome: () => void;
   activeCount?: number;
 }
 
 export const TrackingSidebar: React.FC<TrackingSidebarProps> = ({
-  activeView,
-  onViewChange,
-  onGoHome,
   activeCount = 0,
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const path = location.pathname;
+
   return (
     <aside className="w-14 shrink-0 bg-[#090a0f] border-r border-zinc-900 flex flex-col items-center justify-between py-3 z-30 select-none">
       {/* Top Logo */}
       <div className="flex flex-col items-center gap-4">
         <button
-          onClick={onGoHome}
+          onClick={() => navigate('/')}
           title="Back to Landing Page"
           className="group relative p-1 rounded-lg hover:bg-zinc-800/60 transition-colors cursor-pointer"
         >
@@ -43,15 +41,16 @@ export const TrackingSidebar: React.FC<TrackingSidebarProps> = ({
 
         {/* Navigation Icon Stack */}
         <nav className="flex flex-col items-center gap-1.5">
+          {/* 1. Dashboard Console (Exchanged Logo: Now uses Radio Radar Tracking icon) */}
           <button
-            onClick={() => onViewChange('missions')}
-            title="Tracking Feed"
+            onClick={() => navigate('/dashboard')}
+            title="EOC Master Dashboard (/dashboard)"
             className={cn(
               'p-2.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80 transition-colors relative cursor-pointer',
-              activeView === 'missions' && 'bg-zinc-900 text-sky-400 border border-zinc-850'
+              path === '/dashboard' && 'bg-zinc-900 text-sky-400 border border-zinc-850'
             )}
           >
-            <Radio className="h-4 w-4" />
+            <LayoutDashboard className="h-4 w-4" />
             {activeCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center">
                 {activeCount}
@@ -59,37 +58,28 @@ export const TrackingSidebar: React.FC<TrackingSidebarProps> = ({
             )}
           </button>
 
+          {/* 2. Dedicated Tracing & Telemetry (Exchanged Logo: Now uses LayoutDashboard icon) */}
           <button
-            onClick={() => onViewChange('dashboard')}
-            title="Overview Map"
+            onClick={() => navigate('/track')}
+            title="OSRM Live Tracing & Telemetry (/track)"
             className={cn(
               'p-2.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80 transition-colors cursor-pointer',
-              activeView === 'dashboard' && 'bg-zinc-900 text-sky-400'
+              (path === '/track' || path.startsWith('/track/')) && 'bg-zinc-900 text-sky-400 border border-zinc-850'
             )}
           >
-            <LayoutDashboard className="h-4 w-4" />
+            <Radio className="h-4 w-4" />
           </button>
 
+          {/* 3. Municipal Fleet (Meaningful Emergency Vehicle Logo: CarFront / Rescue Transport) */}
           <button
-            onClick={() => onViewChange('fleet')}
-            title="Municipal Fleet"
+            onClick={() => navigate('/fleet')}
+            title="Municipal Fleet Roster (/fleet)"
             className={cn(
               'p-2.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80 transition-colors cursor-pointer',
-              activeView === 'fleet' && 'bg-zinc-900 text-sky-400'
+              path === '/fleet' && 'bg-zinc-900 text-sky-400 border border-zinc-850'
             )}
           >
-            <Truck className="h-4 w-4" />
-          </button>
-
-          <button
-            onClick={() => onViewChange('analytics')}
-            title="OSRM Road Routing"
-            className={cn(
-              'p-2.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/80 transition-colors cursor-pointer',
-              activeView === 'analytics' && 'bg-zinc-900 text-sky-400'
-            )}
-          >
-            <GitBranch className="h-4 w-4" />
+            <CarFront className="h-4 w-4" />
           </button>
         </nav>
       </div>
@@ -97,7 +87,7 @@ export const TrackingSidebar: React.FC<TrackingSidebarProps> = ({
       {/* Bottom Icons & Avatar */}
       <div className="flex flex-col items-center gap-2">
         <button
-          onClick={onGoHome}
+          onClick={() => navigate('/')}
           title="Return to Home Overview"
           className="p-2 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/60 rounded-md transition-colors cursor-pointer"
         >
@@ -118,7 +108,10 @@ export const TrackingSidebar: React.FC<TrackingSidebarProps> = ({
           <Settings className="h-4 w-4" />
         </button>
 
-        <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold text-sky-400 cursor-pointer mt-1">
+        <div
+          onClick={() => navigate('/dashboard')}
+          className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] font-bold text-sky-400 cursor-pointer mt-1"
+        >
           EOC
         </div>
       </div>

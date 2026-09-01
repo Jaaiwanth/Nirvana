@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Terminal, Activity, ShieldCheck, Navigation } from 'lucide-react';
+import { ArrowRight, Terminal } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 
 interface HeroSectionProps {
@@ -10,7 +10,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onLaunchEOC }) => {
   return (
     <section
       id="overview"
-      className="relative w-screen h-screen snap-start snap-always shrink-0 flex flex-col justify-end pb-12 sm:pb-16 overflow-hidden bg-[#07080c] select-none"
+      className="relative w-full h-screen snap-start snap-always shrink-0 flex flex-col justify-end pb-12 sm:pb-16 overflow-hidden bg-[#07080c] select-none"
     >
       {/* 1. Full-Screen Video Background with Reduced Tint */}
       <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">

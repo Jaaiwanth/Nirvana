@@ -8,3 +8,4 @@ export { TelemetrySection } from './components/TelemetrySection';
 export { PresetScenariosPart1 } from './components/PresetScenariosPart1';
 export { PresetScenariosPart2 } from './components/PresetScenariosPart2';
 export { ContactSection } from './components/ContactSection';
+export { LandingPage } from './components/LandingPage';

@@ -76,6 +76,19 @@ export class InMemoryResourceRepository implements IResourceRepository {
     return this.incidentsMap.get(id) || null;
   }
 
+  async updateIncidentStatus(
+    id: string,
+    status: 'REPORTED' | 'TRIAGED' | 'DISPATCHED' | 'ON_SCENE' | 'RESOLVED'
+  ): Promise<Incident | null> {
+    const incident = this.incidentsMap.get(id);
+    if (incident) {
+      incident.status = status;
+      this.incidentsMap.set(id, incident);
+      return incident;
+    }
+    return null;
+  }
+
   async listIncidents(): Promise<Incident[]> {
     return Array.from(this.incidentsMap.values()).sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

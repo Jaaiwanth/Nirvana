@@ -86,6 +86,7 @@ export interface TelemetryUpdateEvent {
   etaMinutes: number;
   remainingDistanceKm: number;
   progressPercentage: number;
+  status?: 'AVAILABLE' | 'DISPATCHED' | 'EN_ROUTE' | 'ON_SCENE';
 }
 
 export interface PresetScenario {

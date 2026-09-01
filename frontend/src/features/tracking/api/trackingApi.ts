@@ -39,6 +39,17 @@ export const trackingApi = {
     }).json();
   },
 
+  async createMediaIncident(payload: {
+    mediaBase64: string;
+    mimeType: string;
+    callerNote?: string;
+    coordinates?: { lat: number; lng: number };
+  }): Promise<{ message: string; incidentId: string }> {
+    return apiClient.post('api/incidents/media', {
+      json: payload,
+    }).json();
+  },
+
   async resetSimulation(): Promise<{ message: string }> {
     return apiClient.post('api/simulate/reset').json();
   },
