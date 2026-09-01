@@ -44,7 +44,7 @@ export interface Incident {
   rawReport: string;
   location: Coordinates;
   triage: IncidentTriage;
-  status: 'REPORTED' | 'TRIAGED' | 'DISPATCHED' | 'RESOLVED';
+  status: 'REPORTED' | 'TRIAGED' | 'DISPATCHED' | 'ON_SCENE' | 'RESOLVED';
   createdAt: string;
   assignedTeamIds: string[];
 }

@@ -84,6 +84,7 @@ export class SimulationEngine {
         mission.isComplete = true;
         missionsToComplete.push(key);
         await resourceRepo.updateTeamStatus(mission.teamId, 'ON_SCENE', mission.incidentId);
+        await resourceRepo.updateIncidentStatus(mission.incidentId, 'ON_SCENE');
       } else {
         await resourceRepo.updateTeamStatus(mission.teamId, 'EN_ROUTE', mission.incidentId);
       }
@@ -104,10 +105,12 @@ export class SimulationEngine {
     for (const key of missionsToComplete) {
       const mission = this.activeMissions.get(key);
       if (mission) {
+        await resourceRepo.updateIncidentStatus(mission.incidentId, 'RESOLVED');
+        await resourceRepo.updateTeamStatus(mission.teamId, 'AVAILABLE', null);
         sseHub.broadcast('incident:resolved', {
           incidentId: mission.incidentId,
           teamId: mission.teamId,
-          message: `Unit ${mission.teamId} has successfully arrived on scene at incident ${mission.incidentId}.`,
+          message: `Unit ${mission.teamId} has arrived on scene. Mission at incident ${mission.incidentId} is RESOLVED.`,
         });
         this.activeMissions.delete(key);
       }
