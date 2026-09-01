@@ -193,8 +193,12 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
           filteredIncidents.map((incident) => {
             const isSelected = selectedIncidentId === incident.id;
             const primaryTeam = incident.dispatchPlan?.primaryTeam;
+            const primaryTeamId = primaryTeam?.id || incident.assignedTeamIds?.[0];
+            const isAssigned = !!primaryTeam || (incident.assignedTeamIds && incident.assignedTeamIds.length > 0);
             const statusLabel = getStatusLabel(incident.status);
             const statusVariant = getStatusVariant(incident.status, incident.triage?.severity);
+            const isResolved = incident.status === 'RESOLVED';
+            const isOnScene = incident.status === 'ON_SCENE';
 
             return (
               <div
@@ -220,15 +224,27 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
                 {/* Route Bar: Origin -> ETA -> Destination */}
                 <div className="flex items-center justify-between text-zinc-300 font-mono text-[11px] py-1 border-y border-zinc-900/60 my-1.5">
                   <span className="font-semibold text-zinc-300">
-                    {primaryTeam ? 'STATION' : 'BASE'}
+                    {isAssigned ? 'STATION' : 'BASE'}
                   </span>
                   <div className="flex items-center gap-1 text-zinc-500 text-[10px]">
                     <span className="h-px w-6 bg-zinc-800" />
-                    <Truck className="h-3 w-3 text-sky-400" />
-                    <span>{primaryTeam ? `${primaryTeam.etaMinutes}m` : 'STANDBY'}</span>
+                    <Truck className={`h-3 w-3 ${isOnScene || isResolved ? 'text-emerald-400' : 'text-sky-400'}`} />
+                    <span>
+                      {isResolved
+                        ? 'CLOSED'
+                        : isOnScene
+                        ? '0m (ON SCENE)'
+                        : primaryTeam
+                        ? `${primaryTeam.etaMinutes}m`
+                        : isAssigned
+                        ? 'EN ROUTE'
+                        : 'STANDBY'}
+                    </span>
                     <span className="h-px w-6 bg-zinc-800" />
                   </div>
-                  <span className="font-semibold text-zinc-300">SCENE</span>
+                  <span className="font-semibold text-zinc-300">
+                    {isResolved ? 'SECURED' : 'SCENE'}
+                  </span>
                 </div>
 
                 {/* Sub-label: Address & Summary */}
@@ -239,9 +255,17 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
                 {/* Unit Footer */}
                 <div className="flex items-center justify-between mt-2 pt-1 text-[10px] text-zinc-500 font-mono">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        isResolved || isOnScene
+                          ? 'bg-emerald-400'
+                          : isAssigned
+                          ? 'bg-sky-400 animate-pulse'
+                          : 'bg-zinc-600'
+                      }`}
+                    />
                     <span className="text-zinc-300 font-medium">
-                      {primaryTeam ? primaryTeam.callsign : 'Unassigned'}
+                      {primaryTeam?.callsign || (isAssigned ? `Unit ${primaryTeamId}` : 'Unassigned')}
                     </span>
                     {primaryTeam && (
                       <span className="text-zinc-500">
@@ -249,11 +273,21 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
                       </span>
                     )}
                   </div>
-                  {primaryTeam && (
-                    <span className="text-sky-400 font-semibold">
-                      ETA {primaryTeam.etaMinutes}m
-                    </span>
-                  )}
+                  <span
+                    className={`font-semibold ${
+                      isResolved || isOnScene ? 'text-emerald-400' : 'text-sky-400'
+                    }`}
+                  >
+                    {isResolved
+                      ? 'RESOLVED'
+                      : isOnScene
+                      ? 'ON SCENE'
+                      : primaryTeam
+                      ? `ETA ${primaryTeam.etaMinutes}m`
+                      : isAssigned
+                      ? 'IN TRANSIT'
+                      : ''}
+                  </span>
                 </div>
               </div>
             );

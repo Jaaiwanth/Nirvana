@@ -102,6 +102,13 @@ export function useLiveTelemetry({
         eventSource.addEventListener('incident:resolved', (e: MessageEvent) => {
           try {
             const data = JSON.parse(e.data);
+            if (data.teamId) {
+              setLatestTelemetry((prev) => {
+                const updated = { ...prev };
+                delete updated[data.teamId];
+                return updated;
+              });
+            }
             callbacksRef.current.onIncidentResolved?.(data.incidentId);
           } catch (err) {
             console.error('Failed to parse incident:resolved SSE event:', err);

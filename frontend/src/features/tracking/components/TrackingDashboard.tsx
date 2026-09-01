@@ -51,7 +51,17 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
       queryClient.invalidateQueries({ queryKey: ['resources'] });
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
     },
-    onIncidentResolved: () => {
+    onTelemetryUpdate: (data) => {
+      if (data.status === 'ON_SCENE') {
+        queryClient.setQueryData<Incident[]>(['incidents'], (old = []) =>
+          old.map((inc) => (inc.id === data.incidentId ? { ...inc, status: 'ON_SCENE' } : inc))
+        );
+      }
+    },
+    onIncidentResolved: (resolvedIncidentId) => {
+      queryClient.setQueryData<Incident[]>(['incidents'], (old = []) =>
+        old.map((inc) => (inc.id === resolvedIncidentId ? { ...inc, status: 'RESOLVED' } : inc))
+      );
       queryClient.invalidateQueries({ queryKey: ['resources'] });
       queryClient.invalidateQueries({ queryKey: ['incidents'] });
     },
@@ -89,15 +99,19 @@ export const TrackingDashboard: React.FC<TrackingDashboardProps> = ({
     },
   });
 
-  const activeTelemetryForSelected = selectedIncident?.dispatchPlan?.primaryTeam
-    ? latestTelemetry[selectedIncident.dispatchPlan.primaryTeam.id]
+  const primaryTeamId =
+    selectedIncident?.dispatchPlan?.primaryTeam?.id ||
+    selectedIncident?.assignedTeamIds?.[0];
+
+  const activeTelemetryForSelected = primaryTeamId
+    ? latestTelemetry[primaryTeamId]
     : undefined;
 
   return (
     <div className="flex h-screen w-full bg-[#090a0f] text-zinc-100 overflow-hidden select-none">
       {/* 1. Left Vertical Dock */}
       <TrackingSidebar
-        activeCount={incidents.filter((i) => i.status === 'DISPATCHED').length}
+        activeCount={incidents.filter((i) => i.status === 'DISPATCHED' || i.status === 'ON_SCENE').length}
       />
 
       {/* 2. Left Panel: Incident Feed List */}

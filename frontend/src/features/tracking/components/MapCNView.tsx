@@ -7,7 +7,7 @@ import {
   MapRoute,
   type MapViewport,
 } from '../../../components/ui/map';
-import { Clock, Route, Loader2, Navigation, Check, Plus, Minus, Crosshair } from 'lucide-react';
+import { Clock, Route, Loader2, Navigation, Plus, Minus, Crosshair } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import type { Incident, EmergencyTeam, TelemetryUpdateEvent } from '../../../types/api';
 
@@ -220,10 +220,12 @@ export const MapCNView: React.FC<MapCNViewProps> = ({
               <div className="relative flex items-center justify-center">
                 <div
                   className={`absolute h-8 w-8 rounded-full ${
-                    targetIncident.status === 'ON_SCENE' || targetIncident.status === 'RESOLVED'
-                      ? 'bg-emerald-500/30'
-                      : 'bg-rose-500/30'
-                  } animate-ping`}
+                    targetIncident.status === 'ON_SCENE'
+                      ? 'bg-emerald-500/30 animate-ping'
+                      : targetIncident.status === 'RESOLVED'
+                      ? 'hidden'
+                      : 'bg-rose-500/30 animate-ping'
+                  }`}
                 />
                 <div
                   className={`h-6 w-6 rounded-full border-2 border-white shadow-xl flex items-center justify-center text-white text-[10px] font-bold ${
@@ -234,11 +236,7 @@ export const MapCNView: React.FC<MapCNViewProps> = ({
                       : 'bg-rose-600'
                   }`}
                 >
-                  {targetIncident.status === 'RESOLVED' ? (
-                    <Check className="h-3.5 w-3.5 stroke-[3]" />
-                  ) : (
-                    '!'
-                  )}
+                  !
                 </div>
               </div>
               <MarkerLabel position="bottom">
@@ -280,7 +278,8 @@ export const MapCNView: React.FC<MapCNViewProps> = ({
           const coord = telemetry?.currentCoordinates || team.currentLocation;
           const heading = telemetry?.heading || 0;
           const isPrimary = team.id === primaryTeam?.id;
-          const isOnScene = telemetry?.status === 'ON_SCENE' || team.status === 'ON_SCENE';
+          const isResolved = targetIncident?.status === 'RESOLVED' || team.status === 'AVAILABLE';
+          const isOnScene = !isResolved && (telemetry?.status === 'ON_SCENE' || team.status === 'ON_SCENE');
 
           return (
             <MapMarker
@@ -289,22 +288,18 @@ export const MapCNView: React.FC<MapCNViewProps> = ({
               latitude={coord.lat}
             >
               <MarkerContent>
-                {isOnScene ? (
-                  <div className="h-7 w-7 rounded-full bg-emerald-500 border-2 border-white shadow-lg shadow-emerald-500/80 flex items-center justify-center text-white scale-110 animate-bounce">
-                    <Check className="h-4 w-4 stroke-[3]" />
-                  </div>
-                ) : (
-                  <div
-                    style={{ transform: `rotate(${heading}deg)` }}
-                    className={`h-7 w-7 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300 ${
-                      isPrimary
-                        ? 'bg-sky-500 border-2 border-white shadow-sky-500/80 scale-110'
-                        : 'bg-zinc-800 border border-zinc-600'
-                    }`}
-                  >
-                    <Navigation className="h-3.5 w-3.5 fill-current text-white" />
-                  </div>
-                )}
+                <div
+                  style={{ transform: `rotate(${heading}deg)` }}
+                  className={`h-7 w-7 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300 ${
+                    isOnScene
+                      ? 'bg-emerald-500 border-2 border-white shadow-emerald-500/80 scale-110'
+                      : isPrimary && !isResolved
+                      ? 'bg-sky-500 border-2 border-white shadow-sky-500/80 scale-110'
+                      : 'bg-zinc-800 border border-zinc-600'
+                  }`}
+                >
+                  <Navigation className="h-3.5 w-3.5 fill-current text-white" />
+                </div>
                 <MarkerLabel position="top">
                   {team.callsign} {isOnScene ? '[ON SCENE]' : `(${team.vehicleType.split(' ')[0]})`}
                 </MarkerLabel>
