@@ -8,19 +8,20 @@ export class GeminiProvider implements IAIProvider {
   public name = 'Google Gemini (Gemini 2.0 Flash)';
   private genAI: GoogleGenerativeAI | null = null;
 
-  constructor() {
+  private getClient(): GoogleGenerativeAI {
+    if (this.genAI) return this.genAI;
     const apiKey = process.env.GEMINI_API_KEY;
     if (apiKey && apiKey !== 'AIzaSy_your_gemini_key_here') {
       this.genAI = new GoogleGenerativeAI(apiKey);
+      return this.genAI;
     }
+    throw new Error('Gemini API Key not configured in environment (GEMINI_API_KEY).');
   }
 
   async extractIncidentTriage(reportText: string): Promise<IncidentTriage> {
-    if (!this.genAI) {
-      throw new Error('Gemini API Key not configured.');
-    }
+    const client = this.getClient();
 
-    const model = this.genAI.getGenerativeModel({
+    const model = client.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: { responseMimeType: 'application/json' },
     });
@@ -50,11 +51,9 @@ Report: "${reportText}"`;
   }
 
   async evaluateDispatch(triage: IncidentTriage, candidates: ScoredCandidate[]): Promise<DispatchPlan> {
-    if (!this.genAI) {
-      throw new Error('Gemini API Key not configured.');
-    }
+    const client = this.getClient();
 
-    const model = this.genAI.getGenerativeModel({
+    const model = client.getGenerativeModel({
       model: 'gemini-2.0-flash',
       generationConfig: { responseMimeType: 'application/json' },
     });

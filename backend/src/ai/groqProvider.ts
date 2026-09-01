@@ -8,17 +8,18 @@ export class GroqProvider implements IAIProvider {
   public name = 'Groq (Llama-3.3-70b-versatile)';
   private groq: Groq | null = null;
 
-  constructor() {
+  private getClient(): Groq {
+    if (this.groq) return this.groq;
     const apiKey = process.env.GROQ_API_KEY;
     if (apiKey && apiKey !== 'gsk_your_groq_api_key_here') {
       this.groq = new Groq({ apiKey });
+      return this.groq;
     }
+    throw new Error('Groq API Key not configured in environment (GROQ_API_KEY).');
   }
 
   async extractIncidentTriage(reportText: string): Promise<IncidentTriage> {
-    if (!this.groq) {
-      throw new Error('Groq API Key not configured.');
-    }
+    const client = this.getClient();
 
     const systemPrompt = `You are NIRVANA's Incident Extraction Agent. You analyze 911 reports and return ONLY a JSON object with this schema:
 {
@@ -31,8 +32,10 @@ export class GroqProvider implements IAIProvider {
 }
 Capabilities must be chosen from: ["heavy_rescue", "extrication_tools", "structural_shoring", "search_dogs", "als_medical", "bls_medical", "fire_suppression", "foam_fire_suppression", "hazmat_containment", "fast_water_rescue", "flood_evacuation", "aerial_reconnaissance"].`;
 
-    const response = await this.groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+    const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+
+    const response = await client.chat.completions.create({
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Incident Report: "${reportText}"` },
@@ -55,9 +58,7 @@ Capabilities must be chosen from: ["heavy_rescue", "extrication_tools", "structu
   }
 
   async evaluateDispatch(triage: IncidentTriage, candidates: ScoredCandidate[]): Promise<DispatchPlan> {
-    if (!this.groq) {
-      throw new Error('Groq API Key not configured.');
-    }
+    const client = this.getClient();
 
     const systemPrompt = `You are NIRVANA's Multi-Criteria Dispatch Decision Agent. 
 Evaluate candidate teams and select the optimal primary rescue team and optional secondary ambulance/support.
@@ -79,8 +80,10 @@ Return ONLY a JSON object with this schema:
       capabilityMatchCount: c.capabilityMatchCount,
     }));
 
-    const response = await this.groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+    const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+
+    const response = await client.chat.completions.create({
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         {
