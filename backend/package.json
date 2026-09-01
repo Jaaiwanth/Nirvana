@@ -6,7 +6,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc && node -e \"const fs=require('fs'); if(fs.existsSync('src/data')) { fs.mkdirSync('dist/data', { recursive: true }); fs.cpSync('src/data', 'dist/data', { recursive: true }); }\"",
     "start": "node dist/server.js",
     "lint": "tsc --noEmit",
     "test": "tsx tests/verifyPipeline.ts",

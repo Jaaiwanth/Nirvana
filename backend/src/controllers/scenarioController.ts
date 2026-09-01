@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
-import { createRequire } from 'module';
 import { runEmergencyDispatchGraph } from '../agents/dispatchGraph.js';
-
-const require = createRequire(import.meta.url);
-const presetScenarios: any[] = require('../data/disaster_scenarios.json');
+import { presetScenarios } from '../data/scenarioData.js';
 
 export function listScenarios(_req: Request, res: Response): void {
   res.json(presetScenarios);

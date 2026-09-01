@@ -1,8 +1,5 @@
-import { createRequire } from 'module';
 import { RescueTeam, TeamStatus, Coordinates, Incident } from '../types/index.js';
-
-const require = createRequire(import.meta.url);
-const initialSeedData: RescueTeam[] = require('../data/rescue_teams.seed.json');
+import { initialSeedData } from '../data/seedData.js';
 
 export interface IResourceRepository {
   getAllTeams(): Promise<RescueTeam[]>;
