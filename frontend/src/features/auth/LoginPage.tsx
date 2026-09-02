@@ -21,8 +21,8 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading, signIn, signOut } = useAuth();
 
-  const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -219,7 +219,7 @@ export const LoginPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 pr-3 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-mono transition-colors"
-                    placeholder="admin123"
+                    placeholder="********"
                     required
                   />
                 </div>

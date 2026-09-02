@@ -2,10 +2,10 @@ import React, { useState, useMemo } from 'react';
 import {
   Search,
   SlidersHorizontal,
-  MoreVertical,
   Truck,
   AlertOctagon,
   Plus,
+  X,
 } from 'lucide-react';
 import type { Incident } from '../../../types/api';
 import { StatusPill } from '../../../components/ui/status-pill';
@@ -18,6 +18,7 @@ interface IncidentFeedProps {
   selectedIncidentId: string | null;
   onSelectIncident: (incident: Incident) => void;
   onOpenIntakeModal: () => void;
+  onCloseMobile?: () => void;
 }
 
 type FilterCategory = 'all' | 'critical' | 'usar' | 'hazmat' | 'fire';
@@ -27,6 +28,7 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
   selectedIncidentId,
   onSelectIncident,
   onOpenIntakeModal,
+  onCloseMobile,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<FilterCategory>('all');
@@ -101,9 +103,17 @@ export const IncidentFeed: React.FC<IncidentFeedProps> = ({
           <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-400">
             <SlidersHorizontal className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-zinc-400">
-            <MoreVertical className="h-3.5 w-3.5" />
-          </Button>
+          {onCloseMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onCloseMobile}
+              className="h-7 w-7 text-zinc-400 hover:text-white md:hidden cursor-pointer"
+              title="Close Panel"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
